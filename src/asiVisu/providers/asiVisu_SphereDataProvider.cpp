@@ -71,6 +71,7 @@ void asiVisu_SphereDataProvider::SetScalarAndCoords(const double scalar,
                                                     const double v1[3],
                                                     const double v2[3])
 {
+#if defined USE_MOBIUS
   m_diameter = scalar;
 
   t_xyz p;
@@ -100,6 +101,12 @@ void asiVisu_SphereDataProvider::SetScalarAndCoords(const double scalar,
   m_points[2][0] = v2[0];
   m_points[2][1] = v2[1];
   m_points[2][2] = v2[2];
+#else
+  (void) scalar;
+  (void) v0;
+  (void) v1;
+  (void) v2;
+#endif
 }
 
 //-----------------------------------------------------------------------------
