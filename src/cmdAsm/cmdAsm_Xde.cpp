@@ -904,8 +904,7 @@ int ASMXDE_SaveGLTF(const Handle(asiTcl_Interp)& interp,
   TIMER_NEW
   TIMER_GO
 
-  glTFWriter cafWriter( filename,
-                        ext.EndsWith(".glb"),
+  glTFWriter cafWriter( ext.EndsWith(".glb"),
                         interp->GetProgress(),
                         interp->GetPlotter() );
   //
@@ -917,7 +916,7 @@ int ASMXDE_SaveGLTF(const Handle(asiTcl_Interp)& interp,
   cafWriter.ChangeCoordinateSystemConverter().SetInputCoordinateSystem(glTFCoordinateSystem_Zup);
 
   Handle(glTFXdeDataSourceProvider) dataProvider = new glTFXdeDataSourceProvider(doc->GetDocument());
-  if ( !cafWriter.Perform(dataProvider) )
+  if ( !cafWriter.Perform(filename, dataProvider) )
   {
     interp->GetProgress().SendLogMessage(LogErr(Normal) << "glTF export failed.");
     return TCL_ERROR;

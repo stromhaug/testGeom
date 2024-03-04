@@ -94,26 +94,17 @@ namespace
 
 //-----------------------------------------------------------------------------
 
-glTFWriter::glTFWriter(const TCollection_AsciiString& filename,
-                       const bool                     isBinary,
-                       ActAPI_ProgressEntry           progress,
-                       ActAPI_PlotterEntry            plotter)
+glTFWriter::glTFWriter(const bool            isBinary,
+                       ActAPI_ProgressEntry  progress,
+                       ActAPI_PlotterEntry   plotter)
 //
 : ActAPI_IAlgorithm (progress, plotter),
-  m_filename        (filename),
   m_trsfFormat      (glTFWriterTrsfFormat_Compact),
   m_bIsBinary       (isBinary),
   m_binDataLen64    (0)
 {
   m_CSTrsf.SetOutputLengthUnit(1.0); // meters
   m_CSTrsf.SetOutputCoordinateSystem(glTFCoordinateSystem_glTF);
-
-  TCollection_AsciiString dir, filenameShort, filenameShortBase, filenameExt;
-  OSD_Path::FolderAndFileFromPath(filename, dir, filenameShort);
-  asiAlgo_Utils::Str::FileNameAndExtension(filenameShort, filenameShortBase, filenameExt);
-
-  m_binFilenameShort = filenameShortBase + ".bin" + (m_bIsBinary ? ".tmp" : "");
-  m_binFilenameFull  = !dir.IsEmpty() ? dir + m_binFilenameShort : m_binFilenameShort;
 }
 
 //-----------------------------------------------------------------------------
@@ -276,9 +267,18 @@ void glTFWriter::writeBinDataIndices(std::ostream& binFile,
 
 //-----------------------------------------------------------------------------
 
-bool glTFWriter::Perform(const Handle(glTFIDataSourceProvider)&      dataProvider,
+bool glTFWriter::Perform(const TCollection_AsciiString&              filename, 
+                         const Handle(glTFIDataSourceProvider)&      dataProvider,
                          const TColStd_IndexedDataMapOfStringString& fileInfo)
 {
+  m_filename = filename;
+  TCollection_AsciiString dir, filenameShort, filenameShortBase, filenameExt;
+  OSD_Path::FolderAndFileFromPath(filename, dir, filenameShort);
+  asiAlgo_Utils::Str::FileNameAndExtension(filenameShort, filenameShortBase, filenameExt);
+
+  m_binFilenameShort = filenameShortBase + ".bin" + (m_bIsBinary ? ".tmp" : "");
+  m_binFilenameFull = !dir.IsEmpty() ? dir + m_binFilenameShort : m_binFilenameShort;
+
   if ( dataProvider.IsNull() )
     return false;
 

@@ -586,8 +586,7 @@ int ENGINE_SaveGLTF(const Handle(asiTcl_Interp)& interp,
   }
 
   // Export to glTF.
-  asiAsm::xde::glTFWriter cafWriter(TCollection_AsciiString( filename.c_str() ),
-                                     ext.EndsWith(".glb"), interp->GetProgress(), nullptr);
+  asiAsm::xde::glTFWriter cafWriter(ext.EndsWith(".glb"), interp->GetProgress(), nullptr);
   //
   cafWriter.SetTransformationFormat(asiAsm::xde::glTFWriterTrsfFormat_TRS);
   cafWriter.SetForcedUVExport(false);
@@ -601,7 +600,7 @@ int ENGINE_SaveGLTF(const Handle(asiTcl_Interp)& interp,
   fileInfo.Add("Organization", "Analysis Situs");
 
   Handle(asiAsm::xde::glTFXdeDataSourceProvider) dataProvider = new asiAsm::xde::glTFXdeDataSourceProvider(xdeDoc->GetDocument());
-  if ( !cafWriter.Perform(dataProvider, fileInfo) )
+  if ( !cafWriter.Perform(TCollection_AsciiString(filename.c_str()), dataProvider, fileInfo) )
   {
     xdeDoc->Release();
     return false;

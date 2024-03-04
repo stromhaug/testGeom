@@ -81,14 +81,12 @@ public:
 public:
 
   //! Ctor.
-  //! \param[in] filename the full path to the file to write.
   //! \param[in] isBinary the Boolean flag indicating whether to
   //!                     write into `glb` (all-in-one-file) format.
   //! \param[in] progress the progress notifier.
   //! \param[in] plotter  the imperative plotter.
   gltf_EXPORT
-    glTFWriter(const TCollection_AsciiString& filename,
-               const bool                     isBinary,
+    glTFWriter(const bool                     isBinary,
                ActAPI_ProgressEntry           progress = nullptr,
                ActAPI_PlotterEntry            plotter  = nullptr);
 
@@ -112,12 +110,14 @@ public:
   //!      }
   //!  }
   //!
+  //! \param[in] filename     the full path to the file to write.
   //! \param[in] dataProvider the input data source provider feeding glTF writer with scene structure and nodes content.
   //! \param[in] fileInfo     the map with file metadata to put into glTF header section.
   //!
   //! \return true in case of success, false -- otherwise.
   gltf_EXPORT virtual bool
-    Perform(const Handle(glTFIDataSourceProvider)&      dataProvider,
+    Perform(const TCollection_AsciiString&              filename,
+            const Handle(glTFIDataSourceProvider)&      dataProvider,
             const TColStd_IndexedDataMapOfStringString& fileInfo = TColStd_IndexedDataMapOfStringString());
 
 public:
