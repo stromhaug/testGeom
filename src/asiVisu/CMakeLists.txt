@@ -25,6 +25,7 @@ set (filters_H_FILES
   filters/asiVisu_PointsVectorFilter.h
   filters/asiVisu_ShapeDisplayModeFilter.h
   filters/asiVisu_ShrinkPolyFilter.h
+  filters/asiVisu_TransformPolyDataFilter.h
   filters/asiVisu_TriangulationDisplayModeFilter.h
 )
 set (filters_CPP_FILES 
@@ -35,6 +36,7 @@ set (filters_CPP_FILES
   filters/asiVisu_PointsVectorFilter.cpp
   filters/asiVisu_ShapeDisplayModeFilter.cpp
   filters/asiVisu_ShrinkPolyFilter.cpp
+  filters/asiVisu_TransformPolyDataFilter.cpp
   filters/asiVisu_TriangulationDisplayModeFilter.cpp
 )
 

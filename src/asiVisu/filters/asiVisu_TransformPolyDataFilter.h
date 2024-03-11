@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// Created on: 30 November 2016
+// Created on: 11 March 2024
 //-----------------------------------------------------------------------------
-// Copyright (c) 2017, Sergey Slyadnev
+// Copyright (c) 2024, Elizaveta Krylova
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,53 +28,48 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //-----------------------------------------------------------------------------
 
-#ifndef asiVisu_PartPipeline_h
-#define asiVisu_PartPipeline_h
+#ifndef asiVisu_TransformPolyDataFilter_h
+#define asiVisu_TransformPolyDataFilter_h
 
-// asiVisu includes
-#include <asiVisu_PartPipelineBase.h>
-#include <asiVisu_TransformPolyDataFilter.h>
+// VTK includes
+#include <vtkTransformPolyDataFilter.h>
+#include <vtkFiltersGeneralModule.h>
+#include <vtkPolyDataAlgorithm.h>
 
-//-----------------------------------------------------------------------------
-
-//! Visualization pipeline for OCCT shapes. This pipeline serves the purpose
-//! of visualization of "not-so-valid" shapes. Such shapes can occur either
-//! because of any sort of corruption, or they can represent some intermediate
-//! state of modeling, e.g. a result of Euler Operation which breaks geometry,
-//! but keeps topology consistent.
-class asiVisu_PartPipeline : public asiVisu_PartPipelineBase
+//! Filter performing point coordinates and associated point and cell normals and
+//! vectors transformation. Other point and cell data is passed through the filter
+//! unchanged. This filter is specialized for polygonal data. See vtkTransformFilter
+//! for more general data. Unlike vtkTransformPolyDataFilter filter does not have
+//! the error message about no input data (that exists in VTK 8.2).
+class asiVisu_TransformPolyDataFilter : public vtkTransformPolyDataFilter
 {
 public:
 
-  // OCCT RTTI
-  DEFINE_STANDARD_RTTI_INLINE(asiVisu_PartPipeline, asiVisu_PartPipelineBase)
+  vtkTypeMacro(asiVisu_TransformPolyDataFilter, vtkPolyDataAlgorithm);
+  static asiVisu_TransformPolyDataFilter *New();
+  virtual void SetTransform(vtkAbstractTransform*);
 
-public:
-
-  asiVisu_EXPORT
-    asiVisu_PartPipeline(const vtkSmartPointer<asiVisu_ShapeRobustSource>& source = nullptr,
-                         const asiVisu_ShapeDisplayMode                    dm     = ShapeDisplayMode_Shaded);
-
-public:
-
-  asiVisu_EXPORT virtual void
-    SetInput(const Handle(asiVisu_DataProvider)& dataProvider);
-
-private:
-
-  virtual void callback_update();
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
 
 protected:
 
-  //! Filter for transformation.
-  vtkSmartPointer<asiVisu_TransformPolyDataFilter> m_tranformFilter;
+  asiVisu_TransformPolyDataFilter();
+  ~asiVisu_TransformPolyDataFilter() override;
 
-  //! Components of part-wise color.
-  double m_fPartRed, m_fPartGreen, m_fPartBlue;
+protected:
 
-  //! Components of edge color.
-  double m_fEdgeRed, m_fEdgeGreen, m_fEdgeBlue;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
+protected:
+
+  vtkAbstractTransform *Transform;
+  int OutputPointsPrecision;
+
+private:
+
+  asiVisu_TransformPolyDataFilter(const asiVisu_TransformPolyDataFilter&) = delete;
+  void operator=(const asiVisu_TransformPolyDataFilter&) = delete;
 };
 
 #endif

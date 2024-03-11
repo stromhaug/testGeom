@@ -69,7 +69,7 @@ asiVisu_PartPipeline::asiVisu_PartPipeline(const vtkSmartPointer<asiVisu_ShapeRo
   asiVisu_Utils::ApplyLightingRules( this->Actor() );
 
   // Transformation filter.
-  m_tranformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  m_tranformFilter = vtkSmartPointer<asiVisu_TransformPolyDataFilter>::New();
   //
   this->append(m_tranformFilter);
 }
