@@ -6376,7 +6376,9 @@ Handle(Image_AlienPixMap)
   viewer->SetLightOn(lightDir);
 
   Handle(V3d_View)
-    view = new V3d_View(viewer, viewer->DefaultTypeOfView());
+    view = new V3d_View( viewer, viewer->DefaultTypeOfView() );
+  //
+  view->SetImmediateUpdate(false);
 
 #ifdef _WIN32
   /* Window - create a so called "virtual" WNT window that is a pure WNT window
