@@ -338,11 +338,11 @@ void asiUI_DialogBreakDownAssembly::onProgressUpdated()
 
   if ( !m_localProgress->IsInfinite() )
   {
-    const int сapacity = m_localProgress->Capacity();
+    const int capacity = m_localProgress->Capacity();
 
-    if ( сapacity )
+    if ( capacity )
     {
-      double progress = (double) m_localProgress->CurrentProgress() / сapacity;
+      double progress = (double) m_localProgress->CurrentProgress() / capacity;
       m_widgets.pProgressBar->setValue(int(progress * 100));
     }
     else
