@@ -112,6 +112,7 @@ public:
   enum OpenSaveAction
   {
     OpenSaveAction_Open,
+    OpenSaveAction_OpenDirectory,
     OpenSaveAction_Save
   };
 

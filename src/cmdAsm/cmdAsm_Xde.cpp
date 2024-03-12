@@ -40,6 +40,7 @@
 
 // asiAsm includes
 #include <asiAsm_SceneTree.h>
+#include <asiAsm_XdeBreakDown.h>
 #include <asiAsm_XdeDocIterator.h>
 
 // asiEngine includes
@@ -54,6 +55,7 @@
 #include <fbx_XdeWriter.h>
 
 // asiUI includes
+#include <asiUI_DialogBreakDownAssembly.h>
 #include <asiUI_DialogDump.h>
 #include <asiUI_DialogXdeSummary.h>
 #include <asiUI_XdeBrowser.h>
@@ -1702,6 +1704,18 @@ int ASMXDE_Unload(const Handle(asiTcl_Interp)& interp,
                   int                          argc,
                   const char**                 argv)
 {
+  if ( !cmdAsm::cf.IsNull() && argc <= 1 )
+  {
+    asiUI_DialogBreakDownAssembly*
+      pBreakAssem = new asiUI_DialogBreakDownAssembly(interp->GetProgress(),
+                                                      interp->GetPlotter(),
+                                                      cmdAsm::cf->MainWindow);
+    //
+    pBreakAssem->show();
+
+    return TCL_OK;
+  }
+
   // Read model.
   std::string name;
   //
@@ -1742,77 +1756,14 @@ int ASMXDE_Unload(const Handle(asiTcl_Interp)& interp,
     return TCL_ERROR;
   }
 
-  // BOM filename.
-  std::string bomFilename = asiAlgo_Utils::Str::Slashed( path.ToCString() );
-  bomFilename += "bom.csv";
-
-  // Filenames used for unique parts.
-  NCollection_DataMap<PartId, std::string, PartId::Hasher> partFilenames;
-
-  // Get unique parts.
-  PartIds pids;
-  xdeDoc->GetParts(pids);
-
-  // Count parts.
-  NCollection_DataMap<PartId, int, PartId::Hasher> partQuantities;
-  xdeDoc->CountParts(partQuantities);
-
-  // Create file for BOM output.
-  std::ofstream bomFile;
-  bomFile.open(bomFilename, std::ios::out | std::ios::trunc);
-
-  // Iterate over the unique parts.
-  for ( PartIds::Iterator pit(pids); pit.More(); pit.Next() )
+  BreakDown breakAssembly( interp->GetProgress(),
+                           interp->GetPlotter() );
+  //
+  if ( !breakAssembly.Perform(xdeDoc, path) )
   {
-    int nextUniqueId = 1;
-
-    // Next part.
-    const PartId& pid       = pit.Value();
-    TopoDS_Shape  partShape = xdeDoc->GetShape(pid);
-    t_extString   partName  = xdeDoc->GetPartName(pid);
-
-    // Remove unacceptable characters.
-    partName.RemoveAll( '<' );
-    partName.RemoveAll( '>' );
-    partName.RemoveAll( '/' );
-    partName.RemoveAll( '\\' );
-
-    // Prepare a filename.
-    std::string filename = asiAlgo_Utils::Str::Slashed( path.ToCString() );
-    filename += ExtStr2StdStr(partName);
-    filename += ".stp";
-
-    // Make sure that such a file does not exist yet.
-    while ( QFile::exists( filename.c_str() ) )
-    {
-      interp->GetProgress().SendLogMessage(LogWarn(Normal) << "Filename '%1' has been already used."
-                                                            << filename);
-
-      // Recompose the filename with unique index.
-      filename = asiAlgo_Utils::Str::Slashed( path.ToCString() );
-      filename += ExtStr2StdStr(partName);
-      filename += asiAlgo_Utils::Str::ToString(nextUniqueId++);
-      filename += ".stp";
-    }
-
-    // Write STEP file.
-    asiAlgo_STEP stepWriter( interp->GetProgress() );
-    //
-    if ( !stepWriter.Write( partShape, filename.c_str() ) )
-    {
-      interp->GetProgress().SendLogMessage(LogErr(Normal) << "Cannot export part %1 to '%2'."
-                                                          << pid << filename);
-      continue;
-    }
-
-    // Keep track of filenames.
-    partFilenames.Bind( pid, asiAlgo_Utils::Str::BaseFilename(filename, true) );
-
-    // Add to the BOM file.
-    bomFile << pid.ToString() << ", " << partFilenames(pid) << ", " << partQuantities(pid) << "\n";
+    interp->GetProgress().SendLogMessage(LogErr(Normal) << "Breaking assembly onto parts failed.");
+    return TCL_ERROR;
   }
-
-  bomFile.close();
 
   return TCL_OK;
 }
@@ -2057,12 +2008,13 @@ void cmdAsm::Commands_XDE(const Handle(asiTcl_Interp)&      interp,
   //-------------------------------------------------------------------------//
   interp->AddCommand("asm-xde-unload",
     //
-    "asm-xde-unload -model <M> -path <dir>\n"
+    "asm-xde-unload [-model <M> -path <dir>]\n"
     "\n"
     "\t Unloads all unique parts from the model <M> to the directory specified\n"
     "\t with the '-path' keyword. Together with a plain list of parts, a BOM\n"
     "\t file (bom.csv) is generated in the CSV format to indicate how many occurrences\n"
-    "\t each extracted part has got."
+    "\t each extracted part has got. Run without arguments to proceed with this command\n"
+    "\t in the UI dialog mode."
     "\n"
     "\t The default format for the exported part files is STEP.",
     //

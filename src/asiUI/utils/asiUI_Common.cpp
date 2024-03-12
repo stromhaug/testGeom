@@ -183,12 +183,15 @@ QString asiUI_Common::selectFile(const QString&       filter,
         , QFileDialog::DontUseNativeDialog
 #endif
       );
-    else
+    else if ( action == OpenSaveAction_Save )
       filename = QFileDialog::getSaveFileName(nullptr, saveTitle, dir, filter, nullptr
 #ifndef WIN32
         , QFileDialog::DontUseNativeDialog
 #endif
       );
+    else 
+      filename = QFileDialog::getExistingDirectory(nullptr, openTitle, dir, QFileDialog::ShowDirsOnly |
+                                                                            QFileDialog::DontResolveSymlinks);
   }
   catch ( ... )
   {

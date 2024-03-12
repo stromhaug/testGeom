@@ -219,6 +219,7 @@ set (dialogs_H_FILES
   dialogs/asiUI_TclPluginToCommands.h
 )
 set (dialogs_H_UI_FILES
+  dialogs/asiUI_DialogBreakDownAssembly.h
   dialogs/asiUI_DialogCommands.h
   dialogs/asiUI_DialogCommandsDelegate.h
   dialogs/asiUI_DialogDump.h
@@ -242,6 +243,7 @@ set (dialogs_H_UI_FILES
   dialogs/asiUI_DialogXdeSummary.h
 )
 set (dialogs_CPP_FILES
+  dialogs/asiUI_DialogBreakDownAssembly.cpp
   dialogs/asiUI_DialogCommands.cpp
   dialogs/asiUI_DialogCommandsCommandItem.cpp
   dialogs/asiUI_DialogCommandsDelegate.cpp

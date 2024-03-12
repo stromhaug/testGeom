@@ -70,8 +70,21 @@ void asiUI_SelectFile::reset()
 //-----------------------------------------------------------------------------
 bool asiUI_SelectFile::event(QEvent* event)
 {
-  if (event->type() == QEvent::MouseButtonPress
-   || event->type() == QEvent::MouseButtonDblClick)
+  if (event->type() == QEvent::MouseMove)
+  {
+    auto evt = dynamic_cast<QMouseEvent*>(event);
+    if (m_buttonRect.contains(evt->pos()))
+    {
+      setCursor(Qt::ArrowCursor);
+    }
+    else
+    {
+      setCursor(Qt::IBeamCursor);
+    }
+    return true;
+  }
+  else if (event->type() == QEvent::MouseButtonPress
+        || event->type() == QEvent::MouseButtonDblClick)
   {
     auto evt = dynamic_cast<QMouseEvent*>(event);
     if (m_buttonRect.contains(evt->pos()))

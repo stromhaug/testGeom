@@ -212,7 +212,7 @@ QString asiUI_Logger::chooseString(const Handle(Standard_Transient)& val) const
   if ( !STR_String.isEmpty() )
     return STR_String;
 
-  return QString::null;
+  return QString();
 }
 
 //-----------------------------------------------------------------------------
@@ -225,7 +225,7 @@ QString asiUI_Logger::toString(const Handle(Standard_Transient)& val) const
 {
   opencascade::handle<T> hVal = opencascade::handle<T>::DownCast(val);
   if ( hVal.IsNull() )
-    return QString::null;
+    return QString();
 
   // Convert to string using the max precision (this is not as straightforward
   // as simply using the ctor of ASCII string class as those ctors usually
@@ -248,7 +248,7 @@ QString asiUI_Logger::toString(const Handle(Standard_Transient)& val) const
 QString asiUI_Logger::toString(const Handle(ActAux_TimeStamp)& timeStamp) const
 {
   if ( timeStamp.IsNull() )
-    return QString::null;
+    return QString();
 
   QDateTime dateTime = asiUI_Common::ToQDateTime(timeStamp);
 

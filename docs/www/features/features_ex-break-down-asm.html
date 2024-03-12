@@ -80,6 +80,12 @@ file mkdir "$workdir/$basename"
 asm-xde-unload -model M -path "$workdir/$basename"
 </pre>
 
+<p>
+  Alternatively, if you run the command <span class="code-inline">asm-xde-unload</span> without any arguments, it will display a dialog box where you can control the assembly breakdown process. In this window, you have to enter the assembly's input filename and the destination location where all individual parts will be dumped as STEP files. The "expand compound parts" checkbox allows you to turn on and off automatic conversion of compound-type parts into subassemblies. The "use filename prefix" checkbox instructs the algorithm to automatically add the input file's "base name" as a prefix to each result filename.
+</p>
+
+<div align="center"><a href="../imgs/asm/asm-break-down-dialog.png"><img src="../imgs/asm/asm-break-down-dialog.png" width="40%"/></a></div>
+
 <!-- [END] contents -->
 </div>
 <br/>

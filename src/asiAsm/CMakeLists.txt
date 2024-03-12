@@ -27,6 +27,7 @@ set (entity_CPP_FILES
 
 set (xde_H_FILES
   xde/asiAsm_XdeApp.h
+  xde/asiAsm_XdeBreakDown.h
   xde/asiAsm_XdeDoc.h
   xde/asiAsm_XdeDocIterator.h
   xde/asiAsm_XdeGraph.h
@@ -35,6 +36,7 @@ set (xde_H_FILES
 )
 set (xde_CPP_FILES
   xde/asiAsm_XdeApp.cpp
+  xde/asiAsm_XdeBreakDown.cpp
   xde/asiAsm_XdeDoc.cpp
   xde/asiAsm_XdeDocIterator.cpp
   xde/asiAsm_XdeGraph.cpp
