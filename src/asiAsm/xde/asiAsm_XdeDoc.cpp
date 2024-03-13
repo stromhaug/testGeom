@@ -370,14 +370,11 @@ bool Doc::LoadSTEP(const TCollection_AsciiString& filename,
     return false;
   }
 
-  m_progress.Reset();
-  m_progress.Init();
-
   // Prepare reader.
   STEPCAFControl_Reader xdeReader;
   Handle(XSControl_WorkSession) WS = xdeReader.Reader().WS();
 
-  // Initialize parameters of reader
+  /* Initialize parameters of reader */
 
   // To read sub-shape names from 'Name' attributes of STEP Representation Items
   Interface_Static::SetIVal("read.stepcaf.subshapes.name", readSubshapes); 
@@ -385,10 +382,10 @@ bool Doc::LoadSTEP(const TCollection_AsciiString& filename,
   // Read CAD and associated data from file.
   try
   {
-
     // Read file.
     IFSelect_ReturnStatus outcome;
-    if (isStream)
+    //
+    if ( isStream )
     {
       outcome = xdeReader.ChangeReader().ReadStream("", stream);
     }
@@ -400,7 +397,6 @@ bool Doc::LoadSTEP(const TCollection_AsciiString& filename,
     if ( outcome != IFSelect_RetDone )
     {
       m_progress.SendLogMessage(LogErr(Normal) << "Cannot read STEP file from disk." );
-      m_progress.SetProgressStatus(ActAPI_ProgressStatus::Progress_Failed);
       //
       this->clearSession(WS);
       return false;
@@ -410,7 +406,6 @@ bool Doc::LoadSTEP(const TCollection_AsciiString& filename,
     if ( !xdeReader.Transfer(m_doc) )
     {
       m_progress.SendLogMessage(LogErr(Normal) << "STEP reader failed (error occurred transferring STEP model to XDE)." );
-      m_progress.SetProgressStatus(ActAPI_ProgressStatus::Progress_Failed);
       //
       this->clearSession(WS);
       return false;
@@ -423,7 +418,6 @@ bool Doc::LoadSTEP(const TCollection_AsciiString& filename,
   catch ( ... )
   {
     m_progress.SendLogMessage( LogErr(Normal) << "STEP reader failed (exception on reading STEP file)." );
-    m_progress.SetProgressStatus(ActAPI_ProgressStatus::Progress_Failed);
     return false;
   }
 
@@ -434,7 +428,6 @@ bool Doc::LoadSTEP(const TCollection_AsciiString& filename,
   scaleFactor = lengthNames.IsEmpty() ? 1.0
                                       : fromSiName(lengthNames.First());
 
-  m_progress.SetProgressStatus(ActAPI_ProgressStatus::Progress_Succeeded);
   return true;
 }
 
