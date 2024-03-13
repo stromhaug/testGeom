@@ -3018,6 +3018,8 @@ bool asiAlgo_Utils::ReadObj(const TCollection_AsciiString& filename,
 
   mesh = new ActData_Mesh;
 
+  std::map<int, int> nodes;
+
   // Add mesh nodes.
   for ( t_mesh::VertexIterator vit(mobMesh); vit.More(); vit.Next() )
   {
@@ -3029,7 +3031,8 @@ bool asiAlgo_Utils::ReadObj(const TCollection_AsciiString& filename,
       continue;
 
     // Add node to Active Data structure.
-    mesh->AddNode( mobVertex.X(), mobVertex.Y(), mobVertex.Z() );
+    int id = mesh->AddNode( mobVertex.X(), mobVertex.Y(), mobVertex.Z() );
+    nodes.insert({ vh.GetIdx(), id });
   }
 
   // Add triangles.
@@ -3047,7 +3050,7 @@ bool asiAlgo_Utils::ReadObj(const TCollection_AsciiString& filename,
     mobTriangle.GetVertices(vh[0], vh[1], vh[2]);
 
     // Add triangle to Active Data structure.
-    mesh->AddFace(vh[0].GetIdx(), vh[1].GetIdx(), vh[2].GetIdx());
+    mesh->AddFace(nodes[vh[0].GetIdx()], nodes[vh[1].GetIdx()], nodes[vh[2].GetIdx()]);
   }
 
   // Add quads.
@@ -3065,7 +3068,7 @@ bool asiAlgo_Utils::ReadObj(const TCollection_AsciiString& filename,
     mobQuad.GetVertices(vh[0], vh[1], vh[2], vh[3]);
 
     // Add quad to Active Data structure.
-    mesh->AddFace(vh[0].GetIdx(), vh[1].GetIdx(), vh[2].GetIdx(), vh[3].GetIdx());
+    mesh->AddFace(nodes[vh[0].GetIdx()], nodes[vh[1].GetIdx()], nodes[vh[2].GetIdx()], nodes[vh[3].GetIdx()]);
   }
 
   return true;
