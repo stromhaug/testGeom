@@ -57,7 +57,7 @@ bool BreakDown::Perform(const Handle(Doc)&   xdeDoc,
                         const t_asciiString& outputDir)
 {
   // BOM filename.
-  std::string bomFilename = asiAlgo_Utils::Str::Slashed(outputDir.ToCString() );
+  std::string bomFilename = asiAlgo_Utils::Str::Slashed( outputDir.ToCString() );
   //
   if ( !m_prefix.IsEmpty() )
   {
@@ -90,6 +90,11 @@ bool BreakDown::Perform(const Handle(Doc)&   xdeDoc,
   // Create file for BOM output.
   std::ofstream bomFile;
   bomFile.open(bomFilename, std::ios::out | std::ios::trunc);
+
+  // Add header to BOM.
+  bomFile << "id"       << ", "
+          << "filename" << ", "
+          << "quantity" << "\n";
 
   m_progress.Reset();
   m_progress.Init(pids.Size());
