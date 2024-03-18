@@ -32,7 +32,6 @@
 #define asiAlgo_SegmentsInfoExtractor_h
 
 // asiAlgo include
-#include <asiAlgo.h>
 #include <asiAlgo_SegmentsInfo.h>
 
 // OCCT includes
@@ -73,17 +72,18 @@ public:
   asiAlgo_EXPORT
     ~asiAlgo_SegmentsInfoExtractor();
 
+public:
+
   //! Returns resulting vector of segments infomation data structures.
-  asiAlgo_EXPORT
-    const asiAlgo_SegmentsInfoVec& Result() { return m_infoVec; }
+  const asiAlgo_SegmentsInfoVec& Result() const { return m_infoVec; }
 
 private:
 
   double angleToDegree(const double& angle);
 
   double angleTo(const TopoDS_Edge& edge,
-                  const TopoDS_Edge& nextEdge,
-                  const gp_Dir&      normal);
+                 const TopoDS_Edge& nextEdge,
+                 const gp_Dir&      normal);
 
   bool curveDirection(const Handle(Geom_Curve)& curve,
                       const gp_Pnt&             commonPoint,
@@ -92,10 +92,10 @@ private:
                       gp_Dir&                   curveDir);
 
   void curveAngularity(const Handle(Geom_Curve)& curve,
-                        const double              U1,
-                        const double              U2,
-                        double&                   edgeRadius,
-                        double&                   edgeAngle);
+                       const double              U1,
+                       const double              U2,
+                       double&                   edgeRadius,
+                       double&                   edgeAngle);
 
   void angularity(const TopoDS_Edge& edge,
                   double&            edgeRadius,

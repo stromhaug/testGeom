@@ -92,8 +92,8 @@ bool BreakDown::Perform(const Handle(Doc)&   xdeDoc,
   bomFile.open(bomFilename, std::ios::out | std::ios::trunc);
 
   // Add header to BOM.
-  bomFile << "id"       << ", "
-          << "filename" << ", "
+  bomFile << "id"       << ","
+          << "filename" << ","
           << "quantity" << "\n";
 
   m_progress.Reset();
@@ -160,7 +160,9 @@ bool BreakDown::Perform(const Handle(Doc)&   xdeDoc,
     partFilenames.Bind( pid, asiAlgo_Utils::Str::BaseFilename(filename, true) );
 
     // Add to the BOM file.
-    bomFile << pid.ToString() << ", " << partFilenames(pid) << ", " << partQuantities(pid) << "\n";
+    bomFile << pid.ToString()      << ","
+            << partFilenames(pid)  << ","
+            << partQuantities(pid) << "\n";
 
     m_progress.StepProgress(1);
   }

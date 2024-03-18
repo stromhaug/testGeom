@@ -70,7 +70,7 @@ asiUI_DialogBreakDownAssembly::asiUI_DialogBreakDownAssembly(ActAPI_ProgressEntr
 
   // Filename for STEP data.
   m_widgets.pSelectInputFileLabel = new QLabel("CAD assembly filename", this);
-  m_widgets.pSelectInputFile      = new asiUI_SelectFile("CAD file (*.step, *.stp)",
+  m_widgets.pSelectInputFile      = new asiUI_SelectFile("CAD file (*.step *.stp)",
                                                          "Open CAD file",
                                                           QString(),
                                                           QImage(":icons/asitus/select_xyz.svg"),

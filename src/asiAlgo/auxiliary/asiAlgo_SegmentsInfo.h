@@ -32,7 +32,6 @@
 #define asiAlgo_SegmentsInfo_h
 
 // asiAlgo include
-#include <asiAlgo.h>
 #include <asiAlgo_Optional.h>
 
 // STL includes
