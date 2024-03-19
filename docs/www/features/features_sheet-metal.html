@@ -17,6 +17,13 @@
   </script>
   <!-- [end] Google Analytics -->
 
+  <!--
+     Quick navigation script. Use a div with "toc-panel" class having a
+     nested div with "toc" id to place the navigation panel.
+    -->
+  <script src="../js/jquery-3.5.1.min.js"></script>
+  <script src="../js/toc.js"></script>
+
  </head>
 <body>
 
@@ -45,13 +52,21 @@
 <div class="content-body">
 <!-- [BEGIN] contents -->
 
-<h1>Sheet metal features</h1>
+<h1 id="toc-sm">Sheet metal features</h1>
+
+<div class="toc-panel"><div id="toc"></div></div>
 
 <p>
-  Analysis Situs provides a generic feature recognition framework that finds various applications. One of them is the recognition and unfolding of sheet metal parts. In this chapter, we cover different aspects of the sheet metal recognition algorithms. Contact us for more details and support on that matter.
+  Analysis Situs provides a generic feature recognition framework that finds various applications. One of them is the recognition and unfolding of sheet metal parts. In this chapter, we cover different aspects of the sheet metal recognition algorithms. <a href="http://quaoar.su/blog/contact">Contact us</a> for more details and support on that matter.
 </p>
 
-<h2>Face Transition Graph</h2>
+<h2 id="toc-sm-algorithm">Algorithm</h2>
+
+<p>
+  Sheet Metal Recognition and Unfolding algorithm (SMRU) is a closed-sourced part of Analysis Situs SDK. The elements of this algorithm and some details of its implementation have been published in our Manifold Geometry blog in the "<a href="https://quaoar.su/blog/category/sheet-metal">sheet metal</a>" rubric.
+</p>
+
+<h2 id="toc-sm-ftg">Face Transition Graph</h2>
 
 <p>
   Face Transition Graph (FTG) is a graph derived from the AAG by turning bend nodes into arcs. By definition, all nodes of the FTG represent sheet faces. This derived data structure is used for several purposes:
