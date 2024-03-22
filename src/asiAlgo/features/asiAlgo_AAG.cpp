@@ -356,6 +356,25 @@ const asiAlgo_Feature& asiAlgo_AAG::GetNeighbors(const t_topoId face_idx) const
 
 //-----------------------------------------------------------------------------
 
+asiAlgo_Feature asiAlgo_AAG::GetNeighbors(const asiAlgo_Feature& fids) const
+{
+  asiAlgo_Feature res;
+
+  for ( asiAlgo_Feature::Iterator fit(fids); fit.More(); fit.Next() )
+  {
+    const int              fid  = fit.Key();
+    const asiAlgo_Feature& nids = this->GetNeighbors(fid);
+
+    res.Unite(nids);
+  }
+
+  res.Subtract(fids); // Get rid of the seed faces themselves.
+
+  return res;
+}
+
+//-----------------------------------------------------------------------------
+
 asiAlgo_Feature
   asiAlgo_AAG::GetNeighborsThru(const t_topoId     face_idx,
                                 const TopoDS_Edge& edge)

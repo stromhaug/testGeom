@@ -502,6 +502,12 @@ public:
   asiAlgo_EXPORT const asiAlgo_Feature&
     GetNeighbors(const t_topoId face_idx) const;
 
+  //! Returns neighbors for all the faces from the passed collection.
+  //! \param[in] fids face indices to return neighbors for.
+  //! \return indices of the neighbor faces.
+  asiAlgo_EXPORT asiAlgo_Feature
+    GetNeighbors(const asiAlgo_Feature& fids) const;
+
   //! Returns only those neighbor faces which share the given edge with the
   //! passed face of interest.
   //! \param[in] face_idx ID of the face of interest.
