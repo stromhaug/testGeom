@@ -200,14 +200,23 @@ TopoDS_Shape asiAlgo_ConvertCanonical::Perform(const TopoDS_Shape& shape,
    *  Fix the result.
    * ================ */
 
-  // Fix faces.
-  Handle(ShapeBuild_ReShape) cxt = new ShapeBuild_ReShape;
-  this->fixFaces(result, cxt, tol);
-  //
-  result = cxt->Apply(result);
+  if ( !result.IsNull() )
+  {
+    // Fix faces.
+    Handle(ShapeBuild_ReShape) cxt = new ShapeBuild_ReShape;
+    this->fixFaces(result, cxt, tol);
+    //
+    result = cxt->Apply(result);
 
-  // Fix edges.
-  this->fixEdges(result);
+    // Fix edges.
+    this->fixEdges(result);
+  }
+  else
+  {
+    // If there is no result, let's return the original shape so that the
+    // caller code won't notice that something got broken on conversion.
+    result = shape;
+  }
 
   /* ==================
    *  Populate summary.

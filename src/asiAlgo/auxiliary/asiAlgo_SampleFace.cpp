@@ -301,6 +301,9 @@ bool asiAlgo_SampleFace::Perform(const int numBins)
     ny = int( (yMax - yMin) / step ) + 1;
   }
 
+  if ( nx < 0 || ny < 0)
+    return false;
+
   // Prepare the output grid.
   m_grid = new asiAlgo_UniformGrid<float>( (float) xMin,
                                            (float) yMin,

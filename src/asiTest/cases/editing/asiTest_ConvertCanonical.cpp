@@ -243,3 +243,10 @@ outcome asiTest_ConvertCanonical::test022(const int funcID, const bool)
 {
   return runTestScript(funcID, "editing/canrec/canrec_022.tcl");
 }
+
+//-----------------------------------------------------------------------------
+
+outcome asiTest_ConvertCanonical::test023(const int funcID, const bool)
+{
+  return runTestScript(funcID, "editing/canrec/canrec_023.tcl");
+}

@@ -5612,6 +5612,10 @@ bool asiAlgo_Utils::GetRandomPoint(const TopoDS_Face&     face,
                                    math_BullardGenerator& RNG,
                                    gp_Pnt2d&              uv)
 {
+  // Faces without closed boundaries cannot be used in a classifier.
+  if ( !asiAlgo_CheckValidity().HasAllClosedWires(face) )
+    return false;
+
   // Prepare classification utility.
   BRepClass_FClassifier faceClass2d;
 
