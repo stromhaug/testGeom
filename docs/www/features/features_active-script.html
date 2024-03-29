@@ -17,6 +17,13 @@
   </script>
   <!-- [end] Google Analytics -->
 
+  <!--
+     Quick navigation script. Use a div with "toc-panel" class having a
+     nested div with "toc" id to place the navigation panel.
+    -->
+  <script src="../js/jquery-3.5.1.min.js"></script>
+  <script src="../js/toc.js"></script>
+
  </head>
 <body>
 
@@ -45,9 +52,11 @@
 <div class="content-body">
 <!-- [BEGIN] contents -->
 
-<h1>Active Script console</h1>
+<h1 id="toc-active-script">Active Script console</h1>
 
-<blockquote class="quote">"Embrace scripting."</blockquote>
+<div class="toc-panel"><div id="toc"></div></div>
+
+<h2 id="toc-active-script-overview">Overview</h2>
 
 <blockquote class="quote">"Drive or Script." (Alexis S.)</blockquote>
 
@@ -96,9 +105,62 @@ forward and back slashes.
 You can also execute Tcl scripts in the <a href="./features_batch-mode.html">batch mode</a> without GUI.
 </p>
 
-<h1>Examples</h1>
+<h2 id="toc-active-script-hotkeys">Hotkeys</h2>
 
-<h2>Build a prismatic block</h2>
+<table align="center" style="border: 1px solid rgb(100, 100, 100);" cellpadding="5" cellspacing="0" width="100%">
+  <tr>
+    <td class="table-content-header">
+      Hotkey
+    </td>
+    <td class="table-content-header">
+      Effect
+    </td>
+  </tr>
+  <tr>
+    <td width="30%" class="table-content-block">
+      &lt;Enter&gt;
+    </td>
+    <td width="70%" class="table-content-block">
+      Execute current line.
+    </td>
+  </tr>
+  <tr>
+    <td width="30%" class="table-content-block">
+      &lt;Shift&gt; + &lt;Enter&gt;
+    </td>
+    <td width="70%" class="table-content-block">
+      Insert empty line after the current line.
+    </td>
+  </tr>
+  <tr>
+    <td width="30%" class="table-content-block">
+      &lt;Ctrl&gt; + &lt;&uarr;&gt;
+    </td>
+    <td width="70%" class="table-content-block">
+      Zoom in.
+    </td>
+  </tr>
+  <tr>
+    <td width="30%" class="table-content-block">
+      &lt;Ctrl&gt; + &lt;&darr;&gt;
+    </td>
+    <td width="70%" class="table-content-block">
+      Zoom out.
+    </td>
+  </tr>
+  <tr>
+    <td width="30%" class="table-content-block">
+      &lt;Ctrl&gt; + &lt;Space&gt;
+    </td>
+    <td width="70%" class="table-content-block">
+      Replace all backslashes in the current line with forward slashes.
+    </td>
+  </tr>
+</table>
+
+<h1 id="toc-examples">Examples</h1>
+
+<h2 id="toc-examples-build-prismatic-block">Build a prismatic block</h2>
 
 <p>
 The following procedure creates a prismatic block.
