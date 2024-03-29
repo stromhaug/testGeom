@@ -552,134 +552,124 @@ VTK_MODULE_INIT(vtkRenderingFreeType);
 #include <vtkSphereSource.h>
 #include <vtkStringArray.h>
 #include <vtkTextProperty.h>
+#include <vtkActor.h>
+#include <vtkCallbackCommand.h>
+#include <vtkCamera.h>
+#include <vtkCommand.h>
+#include <vtkNamedColors.h>
+#include <vtkNew.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSphereSource.h>
 
 namespace {
-/**
- * Convert points to glyphs.
- *
- * @param points - The points to glyph
- * @param scale - The scale, used to determine the size of the glyph
- * representing the point, expressed as a fraction of the largest side of the
- * bounding box surrounding the points. e.g. 0.05
- *
- * @return The actor.
- */
-vtkSmartPointer<vtkActor> PointToGlyph(vtkPoints* points, double const& scale);
+class vtkTimerCallback2 : public vtkCallbackCommand
+{
+public:
+  vtkTimerCallback2() = default;
 
+  static vtkTimerCallback2* New()
+  {
+    vtkTimerCallback2* cb = new vtkTimerCallback2;
+    cb->TimerCount = 0;
+    return cb;
+  }
+
+  virtual void Execute(vtkObject* caller, unsigned long eventId,
+                       void* vtkNotUsed(callData))
+  {
+    if (vtkCommand::TimerEvent == eventId)
+    {
+      ++this->TimerCount;
+    }
+    std::cout << this->TimerCount << std::endl;
+    actor->SetPosition(this->TimerCount, this->TimerCount, 0);
+    if (this->TimerCount < this->maxCount)
+    {
+
+      vtkRenderWindowInteractor* iren =
+          dynamic_cast<vtkRenderWindowInteractor*>(caller);
+      iren->GetRenderWindow()->Render();
+    }
+    else
+    {
+      vtkRenderWindowInteractor* iren =
+          dynamic_cast<vtkRenderWindowInteractor*>(caller);
+      if (this->timerId > -1)
+      {
+        iren->DestroyTimer(this->timerId);
+      }
+    }
+  }
+
+private:
+  int TimerCount = 0;
+
+public:
+  vtkActor* actor = nullptr;
+  int timerId = 0;
+  int maxCount = -1;
+};
 } // namespace
+
 int main(int, char*[])
 {
   vtkNew<vtkNamedColors> colors;
 
-  // Create a point set.
-  vtkNew<vtkPointSource> pointSource;
-  pointSource->SetNumberOfPoints(6);
-  pointSource->Update();
+  // Create a sphere
+  vtkNew<vtkSphereSource> sphereSource;
+  sphereSource->SetCenter(0.0, 0.0, 0.0);
+  sphereSource->SetRadius(2.0);
+  sphereSource->SetPhiResolution(30);
+  sphereSource->SetThetaResolution(30);
 
-  // Add label array.
-  vtkNew<vtkStringArray> labels;
-  labels->SetNumberOfValues(6);
-  labels->SetName("labels");
-  labels->SetValue(0, "Priority 10");
-  labels->SetValue(1, "Priority 7");
-  labels->SetValue(2, "Priority 6");
-  labels->SetValue(3, "Priority 4");
-  labels->SetValue(4, "Priority 4");
-  labels->SetValue(5, "Priority 4");
-  pointSource->GetOutput()->GetPointData()->AddArray(labels);
+  // Create a mapper and actor
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputConnection(sphereSource->GetOutputPort());
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper);
+  actor->GetProperty()->SetSpecular(0.6);
+  actor->GetProperty()->SetSpecularPower(30);
+  actor->GetProperty()->SetColor(colors->GetColor3d("Peacock").GetData());
 
-  // Add priority array.
-  vtkNew<vtkIntArray> sizes;
-  sizes->SetNumberOfValues(6);
-  sizes->SetName("sizes");
-  sizes->SetValue(0, 10);
-  sizes->SetValue(1, 7);
-  sizes->SetValue(2, 6);
-  sizes->SetValue(3, 4);
-  sizes->SetValue(4, 4);
-  sizes->SetValue(5, 4);
-  pointSource->GetOutput()->GetPointData()->AddArray(sizes);
-
-  // Create a mapper and actor for the points.
-  vtkNew<vtkPolyDataMapper> pointMapper;
-  pointMapper->SetInputConnection(pointSource->GetOutputPort());
-
-  vtkNew<vtkActor> pointActor;
-  pointActor->SetMapper(pointMapper);
-
-  // Map the points to spheres
-  //auto sphereActor = PointToGlyph(pointSource->GetOutput()->GetPoints(), 0.05);
-  //sphereActor->GetProperty()->SetColor(
-  //    colors->GetColor3d("MistyRose").GetData());
-
-  // Generate the label hierarchy.
-  vtkNew<vtkPointSetToLabelHierarchy> pointSetToLabelHierarchyFilter;
-  pointSetToLabelHierarchyFilter->SetInputConnection(
-      pointSource->GetOutputPort());
-  pointSetToLabelHierarchyFilter->SetLabelArrayName("labels");
-  pointSetToLabelHierarchyFilter->SetPriorityArrayName("sizes");
-  pointSetToLabelHierarchyFilter->Update();
-
-  // Create a mapper and actor for the labels.
-  vtkNew<vtkLabelPlacementMapper> labelMapper;
-  labelMapper->SetInputConnection(
-      pointSetToLabelHierarchyFilter->GetOutputPort());
-  vtkNew<vtkActor2D> labelActor;
-  labelActor->SetMapper(labelMapper);
-  // labelActor->GetProperty()->SetColor(
-  //    colors->GetColor3d("Yellow").GetData());
-
-  // Create a renderer, render window, and interactor.
+  // Create a renderer, render window, and interactor
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->AddRenderer(renderer);
-  renderWindow->SetWindowName("LabelPlacementMapper");
+  renderWindow->SetWindowName("Animation");
 
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  // Add the actors to the scene.
-  renderer->AddActor(pointActor);
-  //renderer->AddActor(sphereActor);
-  renderer->AddActor(labelActor);
-  renderer->SetBackground(colors->GetColor3d("DarkSlateGray").GetData());
+  // Add the actor to the scene
+  renderer->AddActor(actor);
+  renderer->SetBackground(colors->GetColor3d("MistyRose").GetData());
 
-  // Render and interact.
+  // Render and interact
   renderWindow->Render();
+  renderer->GetActiveCamera()->Zoom(0.18);
+  renderWindow->Render();
+
+  // Initialize must be called prior to creating timer events.
+  renderWindowInteractor->Initialize();
+
+  // Sign up to receive TimerEvent
+  vtkNew<vtkTimerCallback2> cb;
+  cb->actor = actor;
+  renderWindowInteractor->AddObserver(vtkCommand::TimerEvent, cb);
+
+  int timerId = renderWindowInteractor->CreateRepeatingTimer(50);
+  std::cout << "timerId: " << timerId << std::endl;
+  // Destroy the timer when maxCount is reached.
+  cb->maxCount = 30;
+  cb->timerId = timerId;
+  // Start the interaction and timer
   renderWindowInteractor->Start();
 
   return EXIT_SUCCESS;
 }
-
-namespace {
-
-vtkSmartPointer<vtkActor> PointToGlyph(vtkPoints* points, double const& scale)
-{
-  auto bounds = points->GetBounds();
-  double maxLen = 0;
-  for (int i = 1; i < 3; ++i)
-  {
-    maxLen = std::max(bounds[i + 1] - bounds[i], maxLen);
-  }
-
-  vtkNew<vtkSphereSource> sphereSource;
-  sphereSource->SetRadius(scale * maxLen);
-
-  vtkNew<vtkPolyData> pd;
-  pd->SetPoints(points);
-
-  vtkNew<vtkGlyph3DMapper> mapper;
-  mapper->SetInputData(pd);
-  mapper->SetSourceConnection(sphereSource->GetOutputPort());
-  mapper->ScalarVisibilityOff();
-  mapper->ScalingOff();
-
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-
-  return actor;
-}
-
-} // namespace
 
 #endif
