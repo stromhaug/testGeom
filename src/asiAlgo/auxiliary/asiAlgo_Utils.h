@@ -274,12 +274,12 @@ namespace asiAlgo_Utils
     asiAlgo_EXPORT std::string
       LastDirname(const std::string& filename);
 
-    //! Extracts base filename with our without extension.1
+    //! Extracts base filename with or without extension.
     asiAlgo_EXPORT TCollection_AsciiString
       BaseFilename(const TCollection_AsciiString& filename,
                    const bool                     doKeepExt);
 
-    //! Extracts base filename with our without extension.
+    //! Extracts base filename with or without extension.
     asiAlgo_EXPORT std::string
       BaseFilename(const std::string& filename,
                    const bool         doKeepExt);
