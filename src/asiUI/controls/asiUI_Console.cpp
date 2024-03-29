@@ -226,7 +226,6 @@ QString asiUI_Console::commandArguments(const asiTcl_CommandInfo& commandTcl,
   return arguments;
 }
 
-
 //-----------------------------------------------------------------------------
 
 bool asiUI_Console::eventFilter( QObject* o, QEvent* e )
@@ -269,6 +268,25 @@ void asiUI_Console::keyPressEvent(QKeyEvent* e)
   bool isProcessed = false;
   switch ( e->key() )
   {
+    case Qt::Key_Space:
+    {
+      if ( e->modifiers() == Qt::ControlModifier )
+      {
+        /* Normalize slashes */
+
+        std::string cmd = this->currentCommand(c).ToCString();
+
+        std::replace(cmd.begin(), cmd.end(), '\\', '/');
+        //
+        c.select(QTextCursor::BlockUnderCursor);
+        c.removeSelectedText();
+        c.insertBlock();
+        c.insertText( QString(READY_PROMPT) + cmd.c_str() );
+
+        this->setTextCursor(c);
+      }
+      break;
+    }
     case Qt::Key_Up:
     {
       if ( e->modifiers() == Qt::ControlModifier )
@@ -325,7 +343,7 @@ void asiUI_Console::keyPressEvent(QKeyEvent* e)
 
         const int bbefore = c.blockNumber();
         c.movePosition(QTextCursor::EndOfBlock);
-        c.movePosition(QTextCursor::Down);;
+        c.movePosition(QTextCursor::Down);
         const int bafter = c.blockNumber();
         //
         if ( bbefore == bafter ) // No next block exists, so the cursor did not move
