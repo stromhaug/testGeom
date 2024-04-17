@@ -85,6 +85,7 @@
 #define asiPropName_AABBDx                                "aabbDx"
 #define asiPropName_AABBDy                                "aabbDy"
 #define asiPropName_AABBDz                                "aabbDz"
+#define asiPropName_AAG                                   "aag"
 
 // JSON properties
 #define asiPropName_ExtrasCanRecSummary                   "canrecSummary"
