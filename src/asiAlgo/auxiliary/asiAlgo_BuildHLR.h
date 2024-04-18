@@ -89,10 +89,11 @@ public:
   //! Data to pass to a thread function.
   struct t_threadData
   {
-    TopoDS_Shape  input;
-    gp_Dir        dir;
-    t_outputEdges style;
-    TopoDS_Shape  output;
+    TopoDS_Shape                     input;    //!< Shape to project with HLR.
+    gp_Dir                           dir;      //!< Projection direction.
+    t_outputEdges                    style;    //!< Filter for the projected edges.
+    TopoDS_Shape                     output;   //!< Projected shape.
+    Handle(ActAPI_IProgressNotifier) progress; //!< Progress notifier.
 
     t_threadData() = default;
   };

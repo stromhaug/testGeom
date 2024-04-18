@@ -32,6 +32,11 @@
 #include <asiAlgo_BuildHLR.h>
 
 // asiAlgo includes
+#include <asiAlgo_HlrPreciseAlgo.h>
+#include <asiAlgo_HlrToShape.h>
+#include <asiAlgo_HlrPolyAlgo.h>
+#include <asiAlgo_HlrPolyToShape.h>
+#include <asiAlgo_ProgressNotifier.h>
 #include <asiAlgo_Timer.h>
 
 // OpenCascade includes
@@ -40,11 +45,9 @@
 #include <BRepLib.hxx>
 #include <gp_Ax2.hxx>
 #include <gp_Ax3.hxx>
-#include <HLRBRep_Algo.hxx>
-#include <HLRBRep_HLRToShape.hxx>
-#include <HLRBRep_PolyAlgo.hxx>
-#include <HLRBRep_PolyHLRToShape.hxx>
 #include <TopExp_Explorer.hxx>
+
+using namespace asiAlgo;
 
 //-----------------------------------------------------------------------------
 
@@ -56,7 +59,7 @@ asiAlgo_ConcurrentSet<Standard_ThreadId> asiAlgo_BuildHLR::__ThreadsAbandoned;
 
 //-----------------------------------------------------------------------------
 
-namespace hlr
+namespace hlrAux
 {
   //! Builds 3D curves out of the 2D curves constructed by HLR.
   const TopoDS_Shape& Build3dCurves(const TopoDS_Shape& shape)
@@ -71,9 +74,12 @@ namespace hlr
   TopoDS_Shape
     HLR(const TopoDS_Shape&                    shape,
         const gp_Dir&                          direction,
-        const asiAlgo_BuildHLR::t_outputEdges& visibility)
+        const asiAlgo_BuildHLR::t_outputEdges& visibility,
+        ActAPI_ProgressEntry                   progress)
   {
-    Handle(HLRBRep_Algo) brep_hlr = new HLRBRep_Algo;
+    Handle(hlr::PreciseAlgo)
+      brep_hlr = new hlr::PreciseAlgo(progress);
+    //
     brep_hlr->Add(shape);
 
     gp_Ax2 transform(gp::Origin(), direction);
@@ -91,7 +97,7 @@ namespace hlr
     }
 
     // Extract the result sets.
-    HLRBRep_HLRToShape shapes(brep_hlr);
+    hlr::HlrToShape shapes(brep_hlr);
 
     // V -- visible
     // H -- hidden
@@ -160,7 +166,8 @@ namespace hlr
   TopoDS_Shape
     DHLR(const TopoDS_Shape&                    shape,
          const gp_Dir&                          direction,
-         const asiAlgo_BuildHLR::t_outputEdges& visibility)
+         const asiAlgo_BuildHLR::t_outputEdges& visibility,
+         ActAPI_ProgressEntry                   progress)
   {
     gp_Ax2 transform(gp::Origin(), direction);
 
@@ -169,7 +176,8 @@ namespace hlr
 
     // Prepare polygonal HLR algorithm which is known to be more reliable than
     // the "curved" version of HLR.
-    Handle(HLRBRep_PolyAlgo) polyAlgo = new HLRBRep_PolyAlgo;
+    Handle(hlr::PolyAlgo)
+      polyAlgo = new hlr::PolyAlgo(progress);
     //
     try
     {
@@ -184,7 +192,7 @@ namespace hlr
     }
 
     // Create topological entities.
-    HLRBRep_PolyHLRToShape shapes;
+    hlr::PolyHlrToShape shapes;
     //
     try
     {
@@ -243,28 +251,36 @@ namespace hlr
 
   //! Thread function for precise HLR.
   void* ThreadHLR(void* pData)
-{
-  std::cout << "Running HLR in worker thread id: " << asiAlgo_Thread::Current() << std::endl;
+  {
+    std::cout << "Running HLR in worker thread id: " << asiAlgo_Thread::Current() << std::endl;
 
-  TIMER_NEW
-  TIMER_GO
+    TIMER_NEW
+    TIMER_GO
 
-  asiAlgo_BuildHLR::t_threadData*
-    pThreadData = reinterpret_cast<asiAlgo_BuildHLR::t_threadData*>(pData);
+    asiAlgo_BuildHLR::t_threadData*
+      pThreadData = reinterpret_cast<asiAlgo_BuildHLR::t_threadData*>(pData);
 
-  TopoDS_Shape proj = HLR(pThreadData->input,
-                          pThreadData->dir,
-                          pThreadData->style);
+    TopoDS_Shape proj = HLR(pThreadData->input,
+                            pThreadData->dir,
+                            pThreadData->style,
+                            pThreadData->progress);
 
-  // The current thread is allowed to touch the output only if it's not marked "abandoned".
-  if ( !asiAlgo_BuildHLR::__ThreadsAbandoned.contains( asiAlgo_Thread::Current() ) )
+    if ( pThreadData->progress->IsCancelling() )
+    {
+      TIMER_FINISH
+      TIMER_COUT_RESULT_MSG("HLR canceled")
+
+      return NULL;
+    }
+
+    // If not canceled, let's get its output.
     pThreadData->output = proj;
 
-  TIMER_FINISH
-  TIMER_COUT_RESULT_MSG("HLR finished")
+    TIMER_FINISH
+    TIMER_COUT_RESULT_MSG("HLR finished")
 
-  return NULL;
-}
+    return NULL;
+  }
 
   //! Thread function for discrete HLR.
   void* ThreadDHLR(void* pData)
@@ -279,11 +295,19 @@ namespace hlr
 
     TopoDS_Shape proj = DHLR(pThreadData->input,
                              pThreadData->dir,
-                             pThreadData->style);
+                             pThreadData->style,
+                             pThreadData->progress);
 
-    // The current thread is allowed to touch the output only if it's not marked "abandoned".
-    if ( !asiAlgo_BuildHLR::__ThreadsAbandoned.contains( asiAlgo_Thread::Current() ) )
-      pThreadData->output = proj;
+    if ( pThreadData->progress->IsCancelling() )
+    {
+      TIMER_FINISH
+      TIMER_COUT_RESULT_MSG("DHLR canceled")
+
+      return NULL;
+    }
+
+    // If not canceled, let's get its output.
+    pThreadData->output = proj;
 
     TIMER_FINISH
     TIMER_COUT_RESULT_MSG("DHLR finished")
@@ -322,12 +346,12 @@ bool asiAlgo_BuildHLR::Perform(const gp_Dir&        projectionDir,
   {
     case Mode_Precise:
     {
-      m_result = hlr::HLR(m_input, projectionDir, visibility);
+      m_result = hlrAux::HLR(m_input, projectionDir, visibility, m_progress);
       break;
     }
     case Mode_Discrete:
     {
-      m_result = hlr::DHLR(m_input, projectionDir, visibility);
+      m_result = hlrAux::DHLR(m_input, projectionDir, visibility, m_progress);
       break;
     }
     default:
@@ -348,8 +372,8 @@ bool asiAlgo_BuildHLR::PerformParallel(const gp_Dir&        projectionDir,
   // Prepare threads.
   asiAlgo_Thread threads[2];
   //
-  threads[0].SetFunction(hlr::ThreadHLR);
-  threads[1].SetFunction(hlr::ThreadDHLR);
+  threads[0].SetFunction(hlrAux::ThreadHLR);
+  threads[1].SetFunction(hlrAux::ThreadDHLR);
 
   /*
    * Prepare data. Shape is passed as a shallow pointer to be deep-copied
@@ -357,15 +381,27 @@ bool asiAlgo_BuildHLR::PerformParallel(const gp_Dir&        projectionDir,
    * as long as the assigned thread is running.
    */
 
-  __ThreadData[memChunk + 0].input  = BRepBuilderAPI_Copy(m_input, true, true);
-  __ThreadData[memChunk + 0].dir    = projectionDir;
-  __ThreadData[memChunk + 0].style  = visibility;
-  __ThreadData[memChunk + 0].output = TopoDS_Shape();
+  // Precise.
+  __ThreadData[memChunk + 0].input    = BRepBuilderAPI_Copy(m_input, true, true);
+  __ThreadData[memChunk + 0].dir      = projectionDir;
+  __ThreadData[memChunk + 0].style    = visibility;
+  __ThreadData[memChunk + 0].output   = TopoDS_Shape();
   //
+  if ( __ThreadData[memChunk + 0].progress.IsNull() )
+    __ThreadData[memChunk + 0].progress = new asiAlgo_ProgressNotifier(std::cout);
+  //
+  __ThreadData[memChunk + 0].progress->SetProgressStatus(Progress_Running);
+
+  // Polygonal.
   __ThreadData[memChunk + 1].input  = BRepBuilderAPI_Copy(m_input, true, true); // copy mesh for DHLR
   __ThreadData[memChunk + 1].dir    = projectionDir;
   __ThreadData[memChunk + 1].style  = visibility;
   __ThreadData[memChunk + 1].output = TopoDS_Shape();
+  //
+  if ( __ThreadData[memChunk + 1].progress.IsNull() )
+    __ThreadData[memChunk + 1].progress = new asiAlgo_ProgressNotifier(std::cout);
+  //
+  __ThreadData[memChunk + 1].progress->SetProgressStatus(Progress_Running);
 
   // Run threads.
   for ( int i = 0; i < 2; ++i )
@@ -385,12 +421,20 @@ bool asiAlgo_BuildHLR::PerformParallel(const gp_Dir&        projectionDir,
     {
       __ThreadsAbandoned.insert( threads[i].GetId() );
 
-      std::cerr << "Error: cannot get result of thread " << threads[i].GetId() << std::endl;
+      // Set cancellation flag in the thread's data.
+      __ThreadData[memChunk + i].progress->SetProgressStatus(Progress_Canceled);
+
+      std::cerr << "Error: cannot get result of the thread " << threads[i].GetId() << std::endl;
     }
   }
 
-  m_result = __ThreadData[memChunk + 0].output.IsNull() ?
-             __ThreadData[memChunk + 1].output : __ThreadData[memChunk + 0].output;
+  const bool hlrReady  = !__ThreadData[memChunk + 0].output.IsNull();
+  const bool dhlrReady = !__ThreadData[memChunk + 1].output.IsNull();
+
+  if ( hlrReady )
+    m_result = __ThreadData[memChunk + 0].output;
+  else if ( dhlrReady )
+    m_result = __ThreadData[memChunk + 1].output;
 
   return !m_result.IsNull();
 }
