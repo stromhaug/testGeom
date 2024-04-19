@@ -19,9 +19,6 @@
 // Own include
 #include <asiAlgo_HlrPreciseAlgo.h>
 
-// asiAlgo includes
-#include <asiAlgo_HlrShapeBounds.h>
-
 // OpenCascade includes
 #include <HLRTopoBRep_OutLiner.hxx>
 #include <Standard_Transient.hxx>
@@ -76,8 +73,8 @@ Standard_Integer PreciseAlgo::Index (const TopoDS_Shape& S)
   Standard_Integer n = NbShapes();
 
   for (Standard_Integer i = 1; i <= n; i++) {
-    if (GetShapeBounds(i).Shape()->OriginalShape() == S) return i;
-    if (GetShapeBounds(i).Shape()->OutLinedShape() == S) return i;
+    if (ShapeBounds(i).Shape()->OriginalShape() == S) return i;
+    if (ShapeBounds(i).Shape()->OutLinedShape() == S) return i;
   }
 
   return 0;
@@ -85,7 +82,7 @@ Standard_Integer PreciseAlgo::Index (const TopoDS_Shape& S)
 
 //=======================================================================
 //function : OutLinedShapeNullify
-//purpose  :
+//purpose  : 
 //=======================================================================
 
 void PreciseAlgo::OutLinedShapeNullify ()
@@ -93,7 +90,7 @@ void PreciseAlgo::OutLinedShapeNullify ()
   Standard_Integer n = NbShapes();
 
   for (Standard_Integer i = 1; i <= n; i++) {
-    GetShapeBounds(i).Shape()->OutLinedShape(TopoDS_Shape());
-    GetShapeBounds(i).Shape()->DataStructure().Clear();
+    ShapeBounds(i).Shape()->OutLinedShape(TopoDS_Shape());
+    ShapeBounds(i).Shape()->DataStructure().Clear();
   }
 }

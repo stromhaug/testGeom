@@ -30,10 +30,10 @@
 #include <Standard_Integer.hxx>
 #include <BRepTopAdaptor_MapOfShapeTool.hxx>
 
+class HLRBRep_Data;
+
 namespace asiAlgo {
 namespace hlr {
-
-class Data;
 
 class Hider
 {
@@ -45,8 +45,8 @@ public:
   //! Creates a Hider processing  the set  of  Edges and
   //! hiding faces described by <DS>.  Stores the hidden
   //! parts in <DS>.
-  asiAlgo_EXPORT Hider(const Handle(Data)&  DS,
-                       ActAPI_ProgressEntry progress);
+  asiAlgo_EXPORT Hider(const Handle(HLRBRep_Data)& DS,
+                       ActAPI_ProgressEntry        progress);
 
   //! own hiding the side face number <FI>.
   asiAlgo_EXPORT void OwnHiding (const Standard_Integer FI);
@@ -57,7 +57,7 @@ public:
 
 private:
 
-  Handle(Data) myDS;
+  Handle(HLRBRep_Data) myDS;
 
   mutable ActAPI_ProgressEntry m_progress; //!< Progress Notifier.
 

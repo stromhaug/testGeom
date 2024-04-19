@@ -417,117 +417,16 @@ set (features_CPP_FILES
 #------------------------------------------------------------------------------
 
 set (hlr_H_FILES
-  hlr/asiAlgo_Hlr.h
-  hlr/asiAlgo_HlrAreaLimit.h
-  hlr/asiAlgo_HlrAux.h
-  hlr/asiAlgo_HlrBCurveTool.h
-  hlr/asiAlgo_HlrBiPnt2d.h
-  hlr/asiAlgo_HlrBiPoint.h
-  hlr/asiAlgo_HlrBSurfaceTool.h
-  hlr/asiAlgo_HlrCInter.h
-  hlr/asiAlgo_HlrCLProps.h
-  hlr/asiAlgo_HlrCLPropsATool.h
-  hlr/asiAlgo_HlrCSFunctionOfInterCSurf.h
-  hlr/asiAlgo_HlrCurve.h
-  hlr/asiAlgo_HlrCurveLocatorOfProjPCurOfCInter.h
-  hlr/asiAlgo_HlrCurveTool.h
-  hlr/asiAlgo_HlrData.h
-  hlr/asiAlgo_HlrDistBetweenPCurvesOfIntPCurvePCurveOfCInter.h
-  hlr/asiAlgo_HlrEdgeBuilder.h
-  hlr/asiAlgo_HlrEdgeData.h
-  hlr/asiAlgo_HlrEdgeFaceTool.h
-  hlr/asiAlgo_HlrEdgeIList.h
-  hlr/asiAlgo_HlrEdgeInterferenceTool.h
-  hlr/asiAlgo_HlrExactInterCSurf.h
-  hlr/asiAlgo_HlrExactIntersectionPointOfIntPCurvePCurveOfCInter.h
-  hlr/asiAlgo_HlrFaceData.h
-  hlr/asiAlgo_HlrFaceIterator.h
   hlr/asiAlgo_HlrHider.h
-  hlr/asiAlgo_HlrImpParToolOfIntersectorOfIntConicCurveOfCInter.h
-  hlr/asiAlgo_HlrIntConicCurveOfCInter.h
-  hlr/asiAlgo_HlrIntConicCurveOfCInterCore.h
-  hlr/asiAlgo_HlrInterCSurf.h
-  hlr/asiAlgo_HlrInterferenceOfInterCSurf.h
   hlr/asiAlgo_HlrInternalAlgo.h
-  hlr/asiAlgo_HlrIntersector.h
-  hlr/asiAlgo_HlrIntersectorOfIntConicCurveOfCInter.h
-  hlr/asiAlgo_HlrIntPCurvePCurveOfCInter.h
-  hlr/asiAlgo_HlrLineTool.h
-  hlr/asiAlgo_HlrLocateExtPCOfProjPCurOfCInter.h
-  hlr/asiAlgo_HlrPCLocFOfLocateExtPCOfProjPCurOfCInter.h
-  hlr/asiAlgo_HlrPolyAlgo.h
-  hlr/asiAlgo_HlrPolygon2dOfIntPCurvePCurveOfCInter.h
-  hlr/asiAlgo_HlrPolygonOfInterCSurf.h
-  hlr/asiAlgo_HlrPolygonToolOfInterCSurf.h
-  hlr/asiAlgo_HlrPolyhedronOfInterCSurf.h
-  hlr/asiAlgo_HlrPolyhedronToolOfInterCSurf.h
-  hlr/asiAlgo_HlrPolyToShape.h
   hlr/asiAlgo_HlrPreciseAlgo.h
-  hlr/asiAlgo_HlrProjPCurOfCInter.h
-  hlr/asiAlgo_HlrQuadCurvExactInterCSurf.h
-  hlr/asiAlgo_HlrQuadCurvFuncOfQuadCurvExactInterCSurf.h
-  hlr/asiAlgo_HlrShapeBounds.h
-  hlr/asiAlgo_HlrShapeToHlr.h
-  hlr/asiAlgo_HlrSLProps.h
-  hlr/asiAlgo_HlrSLPropsATool.h
-  hlr/asiAlgo_HlrSurface.h
-  hlr/asiAlgo_HlrSurfaceTool.h
   hlr/asiAlgo_HlrToShape.h
-  hlr/asiAlgo_HlrTypeOfResultingEdge.h
-  hlr/asiAlgo_HlrVertexList.h
 )
 set (hlr_CPP_FILES
-  hlr/asiAlgo_Hlr.cpp
-  hlr/asiAlgo_HlrAreaLimit.cpp
-  hlr/asiAlgo_HlrBCurveTool.cpp
-  hlr/asiAlgo_HlrBSurfaceTool.cpp
-  hlr/asiAlgo_HlrCInter.cpp
-  hlr/asiAlgo_HlrCLProps.cpp
-  hlr/asiAlgo_HlrCSFunctionOfInterCSurf.cpp
-  hlr/asiAlgo_HlrCurve.cpp
-  hlr/asiAlgo_HlrCurveLocatorOfProjPCurOfCInter.cpp
-  hlr/asiAlgo_HlrCurveTool.cpp
-  hlr/asiAlgo_HlrData.cpp
-  hlr/asiAlgo_HlrDistBetweenPCurvesOfIntPCurvePCurveOfCInter.cpp
-  hlr/asiAlgo_HlrEdgeBuilder.cpp
-  hlr/asiAlgo_HlrEdgeData.cpp
-  hlr/asiAlgo_HlrEdgeFaceTool.cpp
-  hlr/asiAlgo_HlrEdgeIList.cpp
-  hlr/asiAlgo_HlrEdgeInterferenceTool.cpp
-  hlr/asiAlgo_HlrExactInterCSurf.cpp
-  hlr/asiAlgo_HlrExactIntersectionPointOfIntPCurvePCurveOfCInter.cpp
-  hlr/asiAlgo_HlrFaceData.cpp
-  hlr/asiAlgo_HlrFaceIterator.cpp
   hlr/asiAlgo_HlrHider.cpp
-  hlr/asiAlgo_HlrImpParToolOfIntersectorOfIntConicCurveOfCInter.cpp
-  hlr/asiAlgo_HlrIntConicCurveOfCInter.cpp
-  hlr/asiAlgo_HlrIntConicCurveOfCInterCore.cpp
-  hlr/asiAlgo_HlrInterCSurf.cpp
-  hlr/asiAlgo_HlrInterferenceOfInterCSurf.cpp
   hlr/asiAlgo_HlrInternalAlgo.cpp
-  hlr/asiAlgo_HlrIntersector.cpp
-  hlr/asiAlgo_HlrIntersectorOfIntConicCurveOfCInter.cpp
-  hlr/asiAlgo_HlrIntPCurvePCurveOfCInter.cpp
-  hlr/asiAlgo_HlrLocateExtPCOfProjPCurOfCInter.cpp
-  hlr/asiAlgo_HlrPCLocFOfLocateExtPCOfProjPCurOfCInter.cpp
-  hlr/asiAlgo_HlrPolyAlgo.cpp
-  hlr/asiAlgo_HlrPolygon2dOfIntPCurvePCurveOfCInter.cpp
-  hlr/asiAlgo_HlrPolygonOfInterCSurf.cpp
-  hlr/asiAlgo_HlrPolygonToolOfInterCSurf.cpp
-  hlr/asiAlgo_HlrPolyhedronOfInterCSurf.cpp
-  hlr/asiAlgo_HlrPolyhedronToolOfInterCSurf.cpp
-  hlr/asiAlgo_HlrPolyToShape.cpp
   hlr/asiAlgo_HlrPreciseAlgo.cpp
-  hlr/asiAlgo_HlrProjPCurOfCInter.cpp
-  hlr/asiAlgo_HlrQuadCurvExactInterCSurf.cpp
-  hlr/asiAlgo_HlrQuadCurvFuncOfQuadCurvExactInterCSurf.cpp
-  hlr/asiAlgo_HlrShapeBounds.cpp
-  hlr/asiAlgo_HlrShapeToHlr.cpp
-  hlr/asiAlgo_HlrSLProps.cpp
-  hlr/asiAlgo_HlrSurface.cpp
-  hlr/asiAlgo_HlrSurfaceTool.cpp
   hlr/asiAlgo_HlrToShape.cpp
-  hlr/asiAlgo_HlrVertexList.cpp
 )
 
 #------------------------------------------------------------------------------

@@ -34,8 +34,6 @@
 // asiAlgo includes
 #include <asiAlgo_HlrPreciseAlgo.h>
 #include <asiAlgo_HlrToShape.h>
-#include <asiAlgo_HlrPolyAlgo.h>
-#include <asiAlgo_HlrPolyToShape.h>
 #include <asiAlgo_ProgressNotifier.h>
 #include <asiAlgo_Timer.h>
 
@@ -45,6 +43,8 @@
 #include <BRepLib.hxx>
 #include <gp_Ax2.hxx>
 #include <gp_Ax3.hxx>
+#include <HLRBRep_PolyAlgo.hxx>
+#include <HLRBRep_PolyHLRToShape.hxx>
 #include <TopExp_Explorer.hxx>
 
 using namespace asiAlgo;
@@ -167,7 +167,7 @@ namespace hlrAux
     DHLR(const TopoDS_Shape&                    shape,
          const gp_Dir&                          direction,
          const asiAlgo_BuildHLR::t_outputEdges& visibility,
-         ActAPI_ProgressEntry                   progress)
+         ActAPI_ProgressEntry                   /*progress*/)
   {
     gp_Ax2 transform(gp::Origin(), direction);
 
@@ -176,8 +176,7 @@ namespace hlrAux
 
     // Prepare polygonal HLR algorithm which is known to be more reliable than
     // the "curved" version of HLR.
-    Handle(hlr::PolyAlgo)
-      polyAlgo = new hlr::PolyAlgo(progress);
+    Handle(HLRBRep_PolyAlgo) polyAlgo = new HLRBRep_PolyAlgo;
     //
     try
     {
@@ -192,7 +191,7 @@ namespace hlrAux
     }
 
     // Create topological entities.
-    hlr::PolyHlrToShape shapes;
+    HLRBRep_PolyHLRToShape shapes;
     //
     try
     {

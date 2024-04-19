@@ -15,14 +15,16 @@
 // commercial license or contractual agreement.
 
 #include <asiAlgo_HlrPreciseAlgo.h>
-#include <asiAlgo_HlrData.h>
-#include <asiAlgo_HlrEdgeData.h>
 #include <asiAlgo_HlrToShape.h>
-#include <asiAlgo_HlrShapeBounds.h>
 
 #include <BRep_Builder.hxx>
 #include <HLRAlgo_EdgeIterator.hxx>
-#include <asiAlgo_Hlr.h>
+#include <HLRBRep.hxx>
+#include <HLRBRep_Algo.hxx>
+#include <HLRBRep_Data.hxx>
+#include <HLRBRep_EdgeData.hxx>
+#include <HLRBRep_HLRToShape.hxx>
+#include <HLRBRep_ShapeBounds.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Shape.hxx>
@@ -53,7 +55,7 @@ HlrToShape::InternalCompound (const Standard_Integer typ,
 {
   Standard_Boolean added = Standard_False;
   TopoDS_Shape Result;
-  Handle(Data) DS = myAlgo->DataStructure();
+  Handle(HLRBRep_Data) DS = myAlgo->DataStructure();
 
   if (!DS.IsNull()) {
     DS->Projector().Scaled(Standard_True);
@@ -67,12 +69,12 @@ HlrToShape::InternalCompound (const Standard_Integer typ,
       Standard_Integer v1,v2;
       Standard_Integer index = myAlgo->Index(S);
       if (index == 0) explor = Standard_True;
-      else            myAlgo->GetShapeBounds(index).Bounds(v1,v2,e1,e2,f1,f2);
+      else            myAlgo->ShapeBounds(index).Bounds(v1,v2,e1,e2,f1,f2);
     }
     BRep_Builder B;
     B.MakeCompound(TopoDS::Compound(Result));
-    EdgeData* ed = &(DS->EDataArray().ChangeValue(e1 - 1));
-
+    HLRBRep_EdgeData* ed = &(DS->EDataArray().ChangeValue(e1 - 1));
+    
     for (Standard_Integer ie = e1; ie <= e2; ie++) {
       ed++;
       if (ed->Selected() && !ed->Vertical()) {
@@ -85,7 +87,7 @@ HlrToShape::InternalCompound (const Standard_Integer typ,
       TopTools_IndexedMapOfShape& Edges = DS->EdgeMap();
       TopTools_IndexedMapOfShape& Faces = DS->FaceMap();
       TopExp_Explorer Exp;
-
+      
       for (Exp.Init (S, TopAbs_FACE);
 	   Exp.More();
 	   Exp.Next()) {
@@ -100,7 +102,7 @@ HlrToShape::InternalCompound (const Standard_Integer typ,
 	     Exp.Next()) {
 	  Standard_Integer ie = Edges.FindIndex(Exp.Current());
 	  if (ie != 0) {
-	    EdgeData& EDataIE = DS->EDataArray().ChangeValue(ie);
+	    HLRBRep_EdgeData& EDataIE = DS->EDataArray().ChangeValue(ie);
 	    if (!EDataIE.Used()) {
 	      DrawEdge(visible,Standard_False,typ, EDataIE,Result,added,In3d);
 	      EDataIE.Used(Standard_True);
@@ -115,8 +117,8 @@ HlrToShape::InternalCompound (const Standard_Integer typ,
 	DrawFace(visible,typ,iface,DS,Result,added,In3d);
 
       if (typ >= 3) {
-	EdgeData* EDataE11 = &(DS->EDataArray().ChangeValue(e1 - 1));
-
+	HLRBRep_EdgeData* EDataE11 = &(DS->EDataArray().ChangeValue(e1 - 1));
+	
 	for (Standard_Integer ie = e1; ie <= e2; ie++) {
           EDataE11++;
 	  if (!EDataE11->Used()) {
@@ -141,18 +143,18 @@ void
 HlrToShape::DrawFace (const Standard_Boolean visible,
 			      const Standard_Integer typ,
 			      const Standard_Integer iface,
-			      Handle(Data)& DS,
+			      Handle(HLRBRep_Data)& DS,
 			      TopoDS_Shape& Result,
 			      Standard_Boolean& added,
                               const Standard_Boolean In3d) const
 {
-  FaceIterator Itf;
+  HLRBRep_FaceIterator Itf;
 
   for (Itf.InitEdge(DS->FDataArray().ChangeValue(iface));
        Itf.MoreEdge();
-       Itf.NextEdge()) {
+       Itf.NextEdge()) {               
     Standard_Integer ie = Itf.Edge();
-    EdgeData& edf = DS->EDataArray().ChangeValue(ie);
+    HLRBRep_EdgeData& edf = DS->EDataArray().ChangeValue(ie);
     if (!edf.Used()) {
       Standard_Boolean todraw;
       if      (typ == 1) todraw =  Itf.IsoLine();
@@ -205,7 +207,7 @@ void
 HlrToShape::DrawEdge (const Standard_Boolean visible,
 			      const Standard_Boolean inFace,
 			      const Standard_Integer typ,
-			      EdgeData& ed,
+			      HLRBRep_EdgeData& ed,
 			      TopoDS_Shape& Result,
 			      Standard_Boolean& added,
                               const Standard_Boolean In3d) const
@@ -227,9 +229,9 @@ HlrToShape::DrawEdge (const Standard_Boolean visible,
       for (It.InitVisible(ed.Status()); It.MoreVisible(); It.NextVisible()) {
         It.Visible(sta,tolsta,end,tolend);
         if (!In3d)
-          E = HLR::MakeEdge(ed.Geometry(),sta,end);
+          E = HLRBRep::MakeEdge(ed.Geometry(),sta,end);
         else
-          E = HLR::MakeEdge3d(ed.Geometry(),sta,end);
+          E = HLRBRep::MakeEdge3d(ed.Geometry(),sta,end);
         if (!E.IsNull())
         {
           B.Add(Result,E);
@@ -242,9 +244,9 @@ HlrToShape::DrawEdge (const Standard_Boolean visible,
       for (It.InitHidden(ed.Status()); It.MoreHidden(); It.NextHidden()) {
         It.Hidden(sta,tolsta,end,tolend);
         if (!In3d)
-          E = HLR::MakeEdge(ed.Geometry(),sta,end);
+          E = HLRBRep::MakeEdge(ed.Geometry(),sta,end);
         else
-          E = HLR::MakeEdge3d(ed.Geometry(),sta,end);
+          E = HLRBRep::MakeEdge3d(ed.Geometry(),sta,end);
         if (!E.IsNull())
         {
           B.Add(Result,E);

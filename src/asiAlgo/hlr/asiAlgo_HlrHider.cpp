@@ -16,18 +16,20 @@
 
 #define No_Standard_OutOfRange
 
-#include <asiAlgo_HlrData.h>
-#include <asiAlgo_HlrEdgeBuilder.h>
-#include <asiAlgo_HlrEdgeIList.h>
-#include <asiAlgo_HlrEdgeInterferenceTool.h>
+// Own include
 #include <asiAlgo_HlrHider.h>
-#include <asiAlgo_HlrVertexList.h>
 
 #include <HLRAlgo_Coincidence.hxx>
 #include <HLRAlgo_Interference.hxx>
 #include <HLRAlgo_InterferenceList.hxx>
 #include <HLRAlgo_Intersection.hxx>
 #include <HLRAlgo_ListIteratorOfInterferenceList.hxx>
+#include <HLRBRep_Data.hxx>
+#include <HLRBRep_EdgeBuilder.hxx>
+#include <HLRBRep_EdgeIList.hxx>
+#include <HLRBRep_EdgeInterferenceTool.hxx>
+#include <HLRBRep_Hider.hxx>
+#include <HLRBRep_VertexList.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 #include <Standard_ErrorHandler.hxx>
 
@@ -35,20 +37,26 @@ using namespace asiAlgo::hlr;
 
 //-----------------------------------------------------------------------------
 
-Hider::Hider(const Handle(Data)&  DS,
-             ActAPI_ProgressEntry progress)
+Hider::Hider(const Handle(HLRBRep_Data)& DS,
+             ActAPI_ProgressEntry        progress)
 //
 : myDS       (DS),
   m_progress (progress)
 {}
 
-//-----------------------------------------------------------------------------
+//=======================================================================
+//function : OwnHiding
+//purpose  : 
+//=======================================================================
 
 void Hider::OwnHiding(const Standard_Integer)
 {
 }
 
-//-----------------------------------------------------------------------------
+//=======================================================================
+//function : Hide
+//purpose  : 
+//=======================================================================
 
 void Hider::Hide(const Standard_Integer         FI,
                  BRepTopAdaptor_MapOfShapeTool& MST)
@@ -92,7 +100,7 @@ void Hider::Hide(const Standard_Integer         FI,
   //               - Hide them as ON parts
   //           Build Parts of the edge on the boundary of the face
   //               - Hide them as ON parts on Boundary
-  //
+  // 
   //
   // *****************************************************************
 
@@ -101,8 +109,8 @@ void Hider::Hide(const Standard_Integer         FI,
      return;                                    // **********************
   if (myDS->IsBadFace())
     return;
-  EdgeInterferenceTool EIT(myDS); // List of Intersections
-  Array1OfEData& myEData = myDS->EDataArray();
+  HLRBRep_EdgeInterferenceTool EIT(myDS); // List of Intersections
+  HLRBRep_Array1OfEData& myEData = myDS->EDataArray();
 
   for (; myDS->MoreEdge(); myDS->NextEdge()) {       // loop on the Edges
     Standard_Integer E = myDS->Edge();               // *****************
@@ -116,89 +124,76 @@ void Hider::Hide(const Standard_Integer         FI,
       HLRAlgo_InterferenceList ILHidden;
       HLRAlgo_InterferenceList ILOn;
       EIT.LoadEdge();
-
-      for ( myDS->InitInterference();     // intersections with face-edges
-            myDS->MoreInterference();     // *****************************
-            myDS->NextInterference() )
-      {
-        if ( m_progress.IsCancelling() )
-          return;
-
-        if ( myDS->RejectedInterference() )
-        {
-          if ( myDS->AboveInterference() && myDS->SimpleHidingFace() )
-          {
-            hasOut = Standard_True;
-          }
-        }
-        else
-        {
-          HLRAlgo_Interference& Int = myDS->Interference();
-          //
-          switch ( Int.Intersection().State() )
-          {
-            case TopAbs_IN:
-              EdgeIList::AddInterference(ILHidden, Int, EIT);
-              break;
-            case TopAbs_ON:
-              EdgeIList::AddInterference(ILOn, Int, EIT);
-              break;
-            case TopAbs_OUT:
-            case TopAbs_UNKNOWN:
-              break;
-          }
-        }
+      
+      for (myDS->InitInterference();     // intersections with face-edges
+	   myDS->MoreInterference();     // *****************************
+	   myDS->NextInterference()) {
+	if (myDS->RejectedInterference()) {
+	  if (myDS->AboveInterference() &&
+	      myDS->SimpleHidingFace ()) { 
+	    hasOut = Standard_True;
+	  }
+	}
+	else {
+	  HLRAlgo_Interference& Int = myDS->Interference();
+	  switch (Int.Intersection().State()) {
+	  case TopAbs_IN      :
+	    HLRBRep_EdgeIList::AddInterference(ILHidden,Int,EIT); break;
+	  case TopAbs_ON      :
+	    HLRBRep_EdgeIList::AddInterference(ILOn    ,Int,EIT); break;
+	  case TopAbs_OUT     : 
+	  case TopAbs_UNKNOWN :                                   break;
+	  }
+	}
       }
-
+      
       //-- ============================================================
       Standard_Boolean Modif;
-      do {
+      do { 
         if ( m_progress.IsCancelling() )
           return;
-	Modif = Standard_False;
+	Modif = Standard_False; 
 	HLRAlgo_ListIteratorOfInterferenceList ItSegHidden1(ILHidden);
-	while(ItSegHidden1.More() && Modif==Standard_False) {
-
-		if ( m_progress.IsCancelling() )
-      return;
-
+	while(ItSegHidden1.More() && Modif==Standard_False) { 
+	  if ( m_progress.IsCancelling() )
+            return;
 	  HLRAlgo_Interference& Int1 = ItSegHidden1.Value();
 	  Standard_Integer numseg1=Int1.Intersection().SegIndex();
-	  if(numseg1!=0) {
+	  if(numseg1!=0) { 
 	    HLRAlgo_ListIteratorOfInterferenceList ItSegHidden2(ILHidden);
 	    while(ItSegHidden2.More()  && Modif==Standard_False) {
 
-				if ( m_progress.IsCancelling() )
-          return;
+          if ( m_progress.IsCancelling() )
+            return;
 
 	      HLRAlgo_Interference& Int2 = ItSegHidden2.Value();
 	      Standard_Integer numseg2=Int2.Intersection().SegIndex();
-	      if(numseg1+numseg2 == 0) {
+	      if(numseg1+numseg2 == 0) { 
 		//--printf("\nHidden Traitement du segment %d  %d\n",numseg1,numseg2); fflush(stdout);
 		TopAbs_State stbef1,staft1,stbef2,staft2;
-		Int1.Boundary().State3D(stbef1,staft1);
+		Int1.Boundary().State3D(stbef1,staft1);  
 		Int2.Boundary().State3D(stbef2,staft2);
 		if(Int1.Orientation() == Int2.Orientation()) {
 		  if(Int1.Transition() == Int2.Transition()) {
-		    if(stbef1==stbef2 && staft1==staft2 && stbef1!=TopAbs_ON && staft1!=TopAbs_ON ) {
+		    if(stbef1==stbef2 && staft1==staft2 && stbef1!=TopAbs_ON && staft1!=TopAbs_ON ) { 
 		      //-- printf("\n Index1 = %d  Index2 = %d\n",Int1.Intersection().Index(),Int2.Intersection().Index());
 		      Standard_Integer nind=-1;
-		      if(Int1.Intersection().Index()!=0) {
+		      if(Int1.Intersection().Index()!=0) { 
 			nind=Int1.Intersection().Index();
 		      }
 		      if(Int2.Intersection().Index()!=0) {
 			if(nind!=-1) {
-			  if(Int1.Intersection().Index() != Int2.Intersection().Index()) {
+			  if(Int1.Intersection().Index() != Int2.Intersection().Index()) { 
 			    nind=-1;
 			  }
 			}
-			else {
+			else { 
 			  nind=Int2.Intersection().Index();
 			}
 		      }
 		      if(Int1.Intersection().Index()==0 && Int2.Intersection().Index()==0) nind=0;
-
-		      if(nind!=-1) {
+		     
+		      if(nind!=-1) { 
 			//-- printf("\n Segment Supprime\n"); fflush(stdout);
 			HLRAlgo_Intersection& inter = Int1.ChangeIntersection();
 			inter.SegIndex(nind);
@@ -214,36 +209,34 @@ void Hider::Hide(const Standard_Integer         FI,
 		  }
 		}
 	      }
-	      if(Modif==Standard_False) {
+	      if(Modif==Standard_False) { 
 		ItSegHidden2.Next();
 	      }
 	    }
 	  }
-	  if(Modif==Standard_False) {
+	  if(Modif==Standard_False) { 
 	    ItSegHidden1.Next();
 	  }
 	}
       }
       while(Modif);
-
+	
 
       //-- ============================================================
 
 
       if (!ILOn.IsEmpty()) {         // process the interferences on ILOn
 	                             // *********************************
-
-	EdgeIList::ProcessComplex   // complex transition on ILOn
+      
+	HLRBRep_EdgeIList::ProcessComplex   // complex transition on ILOn
 	  (ILOn,EIT);                       // **************************
 
-	HLRAlgo_ListIteratorOfInterferenceList It(ILOn);
-
+	HLRAlgo_ListIteratorOfInterferenceList It(ILOn); 
+	
 	while(It.More()) {           // process Intersections on the Face
                                      // *********************************
-
-		if ( m_progress.IsCancelling() )
-      return;
-
+      if ( m_progress.IsCancelling() )
+        return;
 	  HLRAlgo_Interference& Int = It.Value();
 	  TopAbs_State stbef, staft;                // read the 3d states
 	  Int.Boundary().State3D(stbef,staft);      // ******************
@@ -254,9 +247,9 @@ void Hider::Hide(const Standard_Integer         FI,
 	    case TopAbs_OUT     :
 	      ILOn.Remove(It);                            break;
 	    case TopAbs_IN      :
-	      EdgeIList::AddInterference(ILHidden,Int,EIT);
+	      HLRBRep_EdgeIList::AddInterference(ILHidden,Int,EIT);
 	      ILOn.Remove(It);                            break;
-	    case TopAbs_UNKNOWN :
+	    case TopAbs_UNKNOWN : 
 #ifdef OCCT_DEBUG
               std::cout << "UNKNOWN state staft" << std::endl;
 #endif
@@ -268,7 +261,7 @@ void Hider::Hide(const Standard_Integer         FI,
 	    case TopAbs_OUT     :
 	      ILOn.Remove(It);                            break;
 	    case TopAbs_IN      :
-	      EdgeIList::AddInterference(ILHidden,Int,EIT);
+	      HLRBRep_EdgeIList::AddInterference(ILHidden,Int,EIT);
 	      ILOn.Remove(It);                            break;
 	    case TopAbs_UNKNOWN :
 #ifdef OCCT_DEBUG
@@ -284,12 +277,12 @@ void Hider::Hide(const Standard_Integer         FI,
 	    case TopAbs_IN        :
 	      switch (staft) {
 	      case TopAbs_IN      :
-		EdgeIList::AddInterference(ILHidden,Int,EIT);
+		HLRBRep_EdgeIList::AddInterference(ILHidden,Int,EIT);
 		ILOn.Remove(It);                          break;
 	      case TopAbs_ON      :
 		Int.Transition(TopAbs_FORWARD );      // FORWARD  in ILOn,
-		EdgeIList::AddInterference    // REVERSED in ILHidden
-		  (ILHidden,HLRAlgo_Interference
+		HLRBRep_EdgeIList::AddInterference    // REVERSED in ILHidden
+		  (ILHidden,HLRAlgo_Interference   
 		   (Int.Intersection(),
 		    Int.Boundary(),
 		    Int.Orientation(),
@@ -298,7 +291,7 @@ void Hider::Hide(const Standard_Integer         FI,
 		It.Next();                                break;
 	      case TopAbs_OUT     :
 		Int.Transition(TopAbs_REVERSED);      // set REVERSED
-		EdgeIList::AddInterference(ILHidden,Int,EIT);
+		HLRBRep_EdgeIList::AddInterference(ILHidden,Int,EIT);
 		ILOn.Remove(It);                          break;
 	      case TopAbs_UNKNOWN :
 #ifdef OCCT_DEBUG
@@ -310,8 +303,8 @@ void Hider::Hide(const Standard_Integer         FI,
 	      switch (staft) {
 	      case TopAbs_IN      :
 		Int.Transition(TopAbs_REVERSED);      // REVERSED in ILOn,
-		EdgeIList::AddInterference    // REVERSED in ILHidden
-		  (ILHidden,HLRAlgo_Interference
+		HLRBRep_EdgeIList::AddInterference    // REVERSED in ILHidden
+		  (ILHidden,HLRAlgo_Interference   
 		   (Int.Intersection(),
 		    Int.Boundary(),
 		    Int.Orientation(),
@@ -325,13 +318,13 @@ void Hider::Hide(const Standard_Integer         FI,
 		std::cout << "UNKNOWN state after" << std::endl;
 #endif
                 break;
-	      }
+	      }	    
 	      It.Next();                                  break;
 	    case TopAbs_OUT :
 	      switch (staft) {
 	      case TopAbs_IN      :
 		Int.Transition(TopAbs_FORWARD);       // set FORWARD
-		EdgeIList::AddInterference(ILHidden,Int,EIT);
+		HLRBRep_EdgeIList::AddInterference(ILHidden,Int,EIT);
 		ILOn.Remove(It);                          break;
 	      case TopAbs_ON      :
 		Int.Transition(TopAbs_FORWARD );      // FORWARD  in ILOn
@@ -353,9 +346,9 @@ void Hider::Hide(const Standard_Integer         FI,
 	  }
 	}
       }
-
+      
       if (ILHidden.IsEmpty() && ILOn.IsEmpty() && !hasOut) {
-	EdgeData& ed = myEData(E);
+	HLRBRep_EdgeData& ed = myEData(E);
 	TopAbs_State st = myDS->Compare(E,ed);              // Classification
 	if (st == TopAbs_IN || st == TopAbs_ON)             // **************
 	  ed.Status().HideAll();
@@ -364,14 +357,14 @@ void Hider::Hide(const Standard_Integer         FI,
 	Standard_Real p1 = 0.,p2 = 0.;
 	Standard_ShortReal tol1 = 0., tol2 = 0.;
 
-	EdgeData& ed = myEData(E);
+	HLRBRep_EdgeData& ed = myEData(E);
 	HLRAlgo_EdgeStatus& ES = ed.Status();
 
 	Standard_Boolean foundHidden = Standard_False;
+	
+	if (!ILHidden.IsEmpty()) {    
 
-	if (!ILHidden.IsEmpty()) {
-
-	  EdgeIList::ProcessComplex // complex transition on ILHidden
+	  HLRBRep_EdgeIList::ProcessComplex // complex transition on ILHidden
 	    (ILHidden,EIT);                 // ******************************
 	  Standard_Integer level = 0;
 	  if (!myDS->SimpleHidingFace())                    // Level at Start
@@ -385,7 +378,7 @@ void Hider::Hide(const Standard_Integer         FI,
             Standard_Real PrevParam = 0.;
             for (; It.More(); It.Next())
             {
-							if ( m_progress.IsCancelling() )
+              if ( m_progress.IsCancelling() )
                 return;
               const HLRAlgo_Interference& Int = It.Value();
               TopAbs_Orientation aTrans = Int.Transition();
@@ -412,7 +405,7 @@ void Hider::Hide(const Standard_Integer         FI,
             It.Initialize(ILHidden);
             while (It.More())
             {
-							if ( m_progress.IsCancelling() )
+              if ( m_progress.IsCancelling() )
                 return;
               Standard_Real aParam = It.Value().Intersection().Parameter();
               Standard_Boolean found = Standard_False;
@@ -428,14 +421,14 @@ void Hider::Hide(const Standard_Integer         FI,
                 It.Next();
             }
           } //remove excess interferences
-
+          
           It.Initialize(ILHidden);
 	  while(It.More()) {           // suppress multi-inside Intersections
 	                               // ***********************************
-
+	  
 	    HLRAlgo_Interference& Int = It.Value();
 	    switch (Int.Transition()) {
-
+	      
 	    case TopAbs_FORWARD  :
 	      {
 		Standard_Integer decal = Int.Intersection().Level();
@@ -446,8 +439,8 @@ void Hider::Hide(const Standard_Integer         FI,
 		level = level + decal;
 	      }
 	      break;
-	    case TopAbs_REVERSED :
-	      {
+	    case TopAbs_REVERSED : 
+	      { 
 		level = level - Int.Intersection().Level();
 		if (level > 0)
                   ILHidden.Remove(It);
@@ -478,7 +471,7 @@ void Hider::Hide(const Standard_Integer         FI,
 
 	  TopAbs_State aBuildIN = TopAbs_IN;
 	  Standard_Boolean IsSuspicion = Standard_True;
-
+	  
 	  Standard_Real pmax, pmin;
 	  Standard_Boolean allInt = Standard_False;
 	  Standard_Boolean allFor = Standard_False;
@@ -492,8 +485,8 @@ void Hider::Hide(const Standard_Integer         FI,
 	    allRev = Standard_True;
 	    HLRAlgo_ListIteratorOfInterferenceList It(ILHidden);
 	    for(;It.More(); It.Next()) {
-				if ( m_progress.IsCancelling() )
-          return;
+          if ( m_progress.IsCancelling() )
+            return;
 	      Standard_Real p = It.Value().Intersection().Parameter();
 	      allFor = allFor && ( It.Value().Transition() == TopAbs_FORWARD);
 	      allRev = allRev && ( It.Value().Transition() == TopAbs_REVERSED);
@@ -503,29 +496,29 @@ void Hider::Hide(const Standard_Integer         FI,
 	    }
 
 	  }
-
+	  
 	  HLRAlgo_ListIteratorOfInterferenceList Itl(ILHidden);
-	  VertexList IL(EIT,Itl);
+	  HLRBRep_VertexList IL(EIT,Itl);
 
 
-	  EdgeBuilder EB(IL);
-
+	  HLRBRep_EdgeBuilder EB(IL);
+	  
 	  EB.Builds(aBuildIN);                         // build hidden parts
 	                                               // ******************
 	  while (EB.MoreEdges()) {
-			if ( m_progress.IsCancelling() )
-        return;
+        if ( m_progress.IsCancelling() )
+          return;
             p1 = 0.; p2 = 0.;
             Standard_Integer aMaskP1P2 = 0;
             while (EB.MoreVertices()) {
 	      switch (EB.Orientation()) {
-	      case TopAbs_FORWARD  :
-		p1   =  EB.Current().Parameter();
+	      case TopAbs_FORWARD  : 
+		p1   =  EB.Current().Parameter(); 
 		tol1 =  EB.Current().Tolerance();
                 aMaskP1P2 |= 1;
 		break;
 	      case TopAbs_REVERSED :
-		p2   =  EB.Current().Parameter();
+		p2   =  EB.Current().Parameter(); 
 		tol2 =  EB.Current().Tolerance();
                 aMaskP1P2 |= 2;
 		break;
@@ -544,10 +537,10 @@ void Hider::Hide(const Standard_Integer         FI,
 	    if(allInt) {
 	      if(p1 < pmin) p1 = pmin;
 	      if(p2 > pmax) p2 = pmax;
-	      //EdgeData& ed = myEData(E);
+	      //HLRBRep_EdgeData& ed = myEData(E);
 	      //TopAbs_State st = myDS->Compare(E,ed);              // Classification
 	    }
-
+	    
 	    TopAbs_State aTestState = TopAbs_IN;
 	    if(IsSuspicion) {
 	      //Standard_Integer aNbp = 1;
@@ -561,28 +554,28 @@ void Hider::Hide(const Standard_Integer         FI,
 		      Standard_False,   // under  the Face
 		      Standard_False);  // inside the Face
 	    }
-
+	    
 	    EB.NextEdge();
 	  }
-
+	  
 	  EB.Builds(TopAbs_ON);             // build parts under the boundary
 	                                    // ******************************
 	  while (EB.MoreEdges()) {
-			if ( m_progress.IsCancelling() )
-        return;
+        if ( m_progress.IsCancelling() )
+          return;
             p1 = 0.; p2 = 0.;
             Standard_Integer aMaskP1P2 = 0;
 	    while (EB.MoreVertices()) {
-				if ( m_progress.IsCancelling() )
-          return;
+          if ( m_progress.IsCancelling() )
+            return;
 	      switch (EB.Orientation()) {
 	      case TopAbs_FORWARD  :
-		p1   = EB.Current().Parameter();
+		p1   = EB.Current().Parameter(); 
 		tol1 = EB.Current().Tolerance();
                 aMaskP1P2 |= 1;
 		break;
 	      case TopAbs_REVERSED :
-		p2   = EB.Current().Parameter();
+		p2   = EB.Current().Parameter(); 
 		tol2 = EB.Current().Tolerance();
                 aMaskP1P2 |= 2;
 		break;
@@ -610,26 +603,26 @@ void Hider::Hide(const Standard_Integer         FI,
               ES.Hide(p1,tol1,p2,tol2,
                       Standard_False,   // under the Face
                       Standard_True);   // on the boundary
-
+            
 	    EB.NextEdge();
 	  }
-	}
-
+	}      
+	
 	if (!ILOn.IsEmpty()) {
 	  Standard_Integer level = 0;
 	  if (!myDS->SimpleHidingFace())                    // Level at Start
 	    level = myDS->HidingStartLevel(E,ed,ILOn);      // **************
 	  if (level > 0) {
-	    HLRAlgo_ListIteratorOfInterferenceList It(ILOn);
-
+	    HLRAlgo_ListIteratorOfInterferenceList It(ILOn); 
+	    
 	    while(It.More()) {         // suppress multi-inside Intersections
 	                               // ***********************************
-				if ( m_progress.IsCancelling() )
-          return;
+          if ( m_progress.IsCancelling() )
+            return;
 
 	      HLRAlgo_Interference& Int = It.Value();
 	      switch (Int.Transition()) {
-
+		
 	      case TopAbs_FORWARD  :
 		{
 		  Standard_Integer decal = Int.Intersection().Level();
@@ -654,34 +647,34 @@ void Hider::Hide(const Standard_Integer         FI,
 	      ES.HideAll();                                   // ***********
 	  }
 	}
-
+	
 	if (!ILOn.IsEmpty()) {
-	  VertexList IL(EIT,ILOn);
-	  EdgeBuilder EB(IL);
-
+	  HLRBRep_VertexList IL(EIT,ILOn);
+	  HLRBRep_EdgeBuilder EB(IL);
+	  
 	  EB.Builds (TopAbs_IN);                   // build parts on the Face
                                                    // ***********************
 	  while (EB.MoreEdges()) {
-			if ( m_progress.IsCancelling() )
-        return;
+        if ( m_progress.IsCancelling() )
+          return;
             p1 = 0.; p2 = 0.;
             Standard_Integer aMaskP1P2 = 0;
 	    while (EB.MoreVertices()) {
-				if ( m_progress.IsCancelling() )
-          return;
+          if ( m_progress.IsCancelling() )
+            return;
 	      switch (EB.Orientation()) {
-	      case TopAbs_FORWARD  :
-		p1   = EB.Current().Parameter();
+	      case TopAbs_FORWARD  : 
+		p1   = EB.Current().Parameter(); 
 		tol1 = EB.Current().Tolerance();
                 aMaskP1P2 |= 1;
 		break;
 	      case TopAbs_REVERSED :
-		p2   = EB.Current().Parameter();
+		p2   = EB.Current().Parameter(); 
 		tol2 = EB.Current().Tolerance();
                 aMaskP1P2 |= 2;
 		break;
 	      case TopAbs_INTERNAL :
-	      case TopAbs_EXTERNAL :
+	      case TopAbs_EXTERNAL :   
 		break;
 	      }
 	      EB.NextVertex();
@@ -697,26 +690,26 @@ void Hider::Hide(const Standard_Integer         FI,
 		    Standard_False);  // inside the Face
 	    EB.NextEdge();
 	  }
-
+	  
 	  EB.Builds(TopAbs_ON);      // build hidden parts under the boundary
                                      // *************************************
 	  while (EB.MoreEdges()) {
-			if ( m_progress.IsCancelling() )
-        return;
+        if ( m_progress.IsCancelling() )
+          return;
             p1 = 0.; p2 = 0.;
             Standard_Integer aMaskP1P2 = 0;
 	    while (EB.MoreVertices()) {
-				if ( m_progress.IsCancelling() )
-          return;
+          if ( m_progress.IsCancelling() )
+            return;
 
 	      switch (EB.Orientation()) {
 	      case TopAbs_FORWARD  :
-		p1   = EB.Current().Parameter();
+		p1   = EB.Current().Parameter(); 
 		tol1 = EB.Current().Tolerance();
                 aMaskP1P2 |= 1;
 		break;
 	      case TopAbs_REVERSED :
-		p2   = EB.Current().Parameter();
+		p2   = EB.Current().Parameter(); 
 		tol2 = EB.Current().Tolerance();
                 aMaskP1P2 |= 2;
 		break;

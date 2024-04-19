@@ -17,7 +17,8 @@
 #ifndef asiAlgo_HLRBRep_HLRToShape_HeaderFile
 #define asiAlgo_HLRBRep_HLRToShape_HeaderFile
 
-#include <asiAlgo_HlrTypeOfResultingEdge.h>
+// asiAlgo includes
+#include <asiAlgo.h>
 
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
@@ -26,18 +27,19 @@
 #include <TopoDS_Shape.hxx>
 #include <Standard_Integer.hxx>
 #include <Standard_Boolean.hxx>
+#include <HLRBRep_TypeOfResultingEdge.hxx>
 
 class TopoDS_Shape;
+class HLRBRep_Data;
+class HLRBRep_EdgeData;
 
 namespace asiAlgo {
 namespace hlr {
 
-class Data;
-class EdgeData;
 class PreciseAlgo;
 
 //! A framework for filtering the computation
-//! results of an PreciseAlgo algorithm by extraction.
+//! results of an HLRBRep_Algo algorithm by extraction.
 //! From the results calculated by the algorithm on
 //! a shape, a filter returns the type of edge you
 //! want to identify. You can choose any of the following types of output:
@@ -122,30 +124,36 @@ public:
     //! of required type and visibility,
     //! taking into account the kind of space
     //! (2d or 3d)
-  asiAlgo_EXPORT TopoDS_Shape
-    CompoundOfEdges(const TypeOfResultingEdge type,
-                    const Standard_Boolean    visible,
-                    const Standard_Boolean    In3d);
+    TopoDS_Shape CompoundOfEdges(const HLRBRep_TypeOfResultingEdge type,
+                                 const Standard_Boolean            visible,
+                                 const Standard_Boolean            In3d);
 
-    //! For specified shape
+    //! For specified shape 
     //! returns compound of resulting edges
     //! of required type and visibility,
     //! taking into account the kind of space
     //! (2d or 3d)
-  asiAlgo_EXPORT TopoDS_Shape
-    CompoundOfEdges(const TopoDS_Shape& S,
-                    const TypeOfResultingEdge type,
-                    const Standard_Boolean    visible,
-                    const Standard_Boolean    In3d);
+    TopoDS_Shape CompoundOfEdges(const TopoDS_Shape& S,
+                                 const HLRBRep_TypeOfResultingEdge type,
+                                 const Standard_Boolean            visible,
+                                 const Standard_Boolean            In3d);
+
+
+
+protected:
+
+
+
+
 
 private:
 
-
-  asiAlgo_EXPORT TopoDS_Shape InternalCompound (const Standard_Integer typ, const Standard_Boolean visible, const TopoDS_Shape& S, const Standard_Boolean In3d = Standard_False);
-
-  asiAlgo_EXPORT void DrawFace (const Standard_Boolean visible, const Standard_Integer typ, const Standard_Integer iface, Handle(Data)& DS, TopoDS_Shape& Result, Standard_Boolean& added, const Standard_Boolean In3d = Standard_False) const;
-
-  asiAlgo_EXPORT void DrawEdge (const Standard_Boolean visible, const Standard_Boolean inFace, const Standard_Integer typ, EdgeData& ed, TopoDS_Shape& Result, Standard_Boolean& added, const Standard_Boolean In3d = Standard_False) const;
+  
+  Standard_EXPORT TopoDS_Shape InternalCompound (const Standard_Integer typ, const Standard_Boolean visible, const TopoDS_Shape& S, const Standard_Boolean In3d = Standard_False);
+  
+  Standard_EXPORT void DrawFace (const Standard_Boolean visible, const Standard_Integer typ, const Standard_Integer iface, Handle(HLRBRep_Data)& DS, TopoDS_Shape& Result, Standard_Boolean& added, const Standard_Boolean In3d = Standard_False) const;
+  
+  Standard_EXPORT void DrawEdge (const Standard_Boolean visible, const Standard_Boolean inFace, const Standard_Integer typ, HLRBRep_EdgeData& ed, TopoDS_Shape& Result, Standard_Boolean& added, const Standard_Boolean In3d = Standard_False) const;
 
 
   Handle(PreciseAlgo) myAlgo;
@@ -338,7 +346,7 @@ HlrToShape::IsoLineHCompound(const TopoDS_Shape& S)
 //=======================================================================
 
 inline TopoDS_Shape
-HlrToShape::CompoundOfEdges(const TypeOfResultingEdge type,
+HlrToShape::CompoundOfEdges(const HLRBRep_TypeOfResultingEdge type,
                             const Standard_Boolean    visible,
                             const Standard_Boolean    In3d)
 { return InternalCompound(type,visible,TopoDS_Shape(),In3d); }
@@ -350,7 +358,7 @@ HlrToShape::CompoundOfEdges(const TypeOfResultingEdge type,
 
 inline TopoDS_Shape
 HlrToShape::CompoundOfEdges(const TopoDS_Shape&       S,
-                            const TypeOfResultingEdge type,
+                            const HLRBRep_TypeOfResultingEdge type,
                             const Standard_Boolean    visible,
                             const Standard_Boolean    In3d)
 { return InternalCompound(type,visible,S,In3d); }

@@ -18,14 +18,15 @@
 #include <asiAlgo_HlrInternalAlgo.h>
 
 // asiAlgo includes
-#include <asiAlgo_HlrData.h>
 #include <asiAlgo_HlrHider.h>
-#include <asiAlgo_HlrShapeBounds.h>
-#include <asiAlgo_HlrShapeToHlr.h>
 
 // OpenCascade includes
 #include <HLRAlgo.hxx>
 #include <HLRAlgo_Projector.hxx>
+#include <HLRBRep_Data.hxx>
+#include <HLRBRep_InternalAlgo.hxx>
+#include <HLRBRep_ShapeBounds.hxx>
+#include <HLRBRep_ShapeToHLR.hxx>
 #include <HLRTopoBRep_OutLiner.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_ErrorHandler.hxx>
@@ -41,6 +42,8 @@ using namespace asiAlgo::hlr;
 
 //-----------------------------------------------------------------------------
 
+IMPLEMENT_STANDARD_RTTIEXT(InternalAlgo,ActAPI_IAlgorithm)
+
 extern Standard_Integer nbPtIntersection;   // total P.I.
 extern Standard_Integer nbSegIntersection;  // total S.I
 extern Standard_Integer nbClassification;   // total classification
@@ -49,10 +52,13 @@ extern Standard_Integer nbCal1Intersection; // pairs of unrejected edges
 extern Standard_Integer nbCal2Intersection; // true intersections (not vertex)
 extern Standard_Integer nbCal3Intersection; // curve-surface intersections
 
-static Standard_Integer InternalAlgo_TRACE = Standard_True;
-static Standard_Integer InternalAlgo_TRACE10 = Standard_True;
+static Standard_Integer HLRBRep_InternalAlgo_TRACE = Standard_True;
+static Standard_Integer HLRBRep_InternalAlgo_TRACE10 = Standard_True; 
 
-//-----------------------------------------------------------------------------
+//=======================================================================
+//function : HLRBRep_InternalAlgo
+//purpose  : 
+//=======================================================================
 
 InternalAlgo::InternalAlgo(ActAPI_ProgressEntry progress,
                            ActAPI_PlotterEntry  plotter)
@@ -61,7 +67,10 @@ InternalAlgo::InternalAlgo(ActAPI_ProgressEntry progress,
   myDebug           (Standard_False)
 {}
 
-//-----------------------------------------------------------------------------
+//=======================================================================
+//function : Projector
+//purpose  : 
+//=======================================================================
 
 void InternalAlgo::Projector (const HLRAlgo_Projector& P)
 {
@@ -79,15 +88,15 @@ void InternalAlgo::Update ()
 {
   if (!myShapes.IsEmpty()) {
     Standard_Integer n = myShapes.Length();
-    Handle(Data) *DS = new Handle(Data) [n];
+    Handle(HLRBRep_Data) *DS = new Handle(HLRBRep_Data) [n];
 
     Standard_Integer i,dv,de,df,nv=0,ne=0,nf=0;
 
     for (i = 1; i <= n; i++) {
-      ShapeBounds& SB = myShapes(i);
+      HLRBRep_ShapeBounds& SB = myShapes(i);
       try {
         OCC_CATCH_SIGNALS
-	DS[i-1] = ShapeToHlr::Load(SB.Shape(),
+	DS[i-1] = HLRBRep_ShapeToHLR::Load(SB.Shape(),
 					   myProj,
 					   myMapOfShapeTool,
 					   SB.NbOfIso());
@@ -102,13 +111,13 @@ void InternalAlgo::Update ()
           std::cout << " and computing its OutLines " << std::endl;
           std::cout << anException << std::endl;
         }
-	DS[i-1] = new Data(0,0,0);
+	DS[i-1] = new HLRBRep_Data(0,0,0);
 	dv = 0;
 	de = 0;
 	df = 0;
       }
 
-      SB = ShapeBounds
+      SB = HLRBRep_ShapeBounds
 	(SB.Shape(),SB.ShapeData(),SB.NbOfIso(),1,dv,1,de,1,df);
       nv += dv;
       ne += de;
@@ -117,13 +126,13 @@ void InternalAlgo::Update ()
 
     if (n == 1) myDS = DS[0];
     else {
-      myDS = new Data(nv,ne,nf);
+      myDS = new HLRBRep_Data(nv,ne,nf);
       nv = 0;
       ne = 0;
       nf = 0;
 
       for (i = 1; i <= n; i++) {
-	ShapeBounds& SB = myShapes(i);
+	HLRBRep_ShapeBounds& SB = myShapes(i);
 	SB.Sizes(dv,de,df);
 	SB.Translate(nv,ne,nf);
 	myDS->Write(DS[i-1],nv,ne,nf);
@@ -139,17 +148,17 @@ void InternalAlgo::Update ()
 
     HLRAlgo_EdgesBlock::MinMaxIndices ShapMin, ShapMax, MinMaxShap;
     HLRAlgo_EdgesBlock::MinMaxIndices TheMin, TheMax;
-    Array1OfEData& aEDataArray = myDS->EDataArray();
-    Array1OfFData& aFDataArray = myDS->FDataArray();
+    HLRBRep_Array1OfEData& aEDataArray = myDS->EDataArray();
+    HLRBRep_Array1OfFData& aFDataArray = myDS->FDataArray();
 
     for (i = 1; i <= n; i++) {
       Standard_Boolean FirstTime = Standard_True;
-      ShapeBounds& SB = myShapes(i);
+      HLRBRep_ShapeBounds& SB = myShapes(i);
       Standard_Integer v1,v2,e1,e2,f1,f2;
       SB.Bounds(v1,v2,e1,e2,f1,f2);
 
       for (Standard_Integer e = e1; e <= e2; e++) {
-        EdgeData& ed = aEDataArray.ChangeValue(e);
+        HLRBRep_EdgeData& ed = aEDataArray.ChangeValue(e);
         HLRAlgo::DecodeMinMax(ed.MinMax(), TheMin, TheMax);
 	if (FirstTime) {
 	  FirstTime = Standard_False;
@@ -160,7 +169,7 @@ void InternalAlgo::Update ()
       }
 
       for (Standard_Integer f = f1; f <= f2; f++) {
-        FaceData& fd = aFDataArray.ChangeValue(f);
+        HLRBRep_FaceData& fd = aFDataArray.ChangeValue(f);
         HLRAlgo::DecodeMinMax(fd.Wires()->MinMax(), TheMin, TheMax);
 	HLRAlgo::AddMinMax(TheMin, TheMax, ShapMin, ShapMax);
       }
@@ -175,8 +184,8 @@ void InternalAlgo::Update ()
 void InternalAlgo::Load (const Handle(HLRTopoBRep_OutLiner)& S,
 				 const Handle(Standard_Transient)& SData,
 				 const Standard_Integer nbIso)
-{
-  myShapes.Append(ShapeBounds(S,SData,nbIso,0,0,0,0,0,0));
+{ 
+  myShapes.Append(HLRBRep_ShapeBounds(S,SData,nbIso,0,0,0,0,0,0));
   myDS.Nullify();
 }
 
@@ -184,8 +193,8 @@ void InternalAlgo::Load (const Handle(HLRTopoBRep_OutLiner)& S,
 
 void InternalAlgo::Load (const Handle(HLRTopoBRep_OutLiner)& S,
 				 const Standard_Integer nbIso)
-{
-  myShapes.Append(ShapeBounds(S,nbIso,0,0,0,0,0,0));
+{ 
+  myShapes.Append(HLRBRep_ShapeBounds(S,nbIso,0,0,0,0,0,0));
   myDS.Nullify();
 }
 
@@ -208,9 +217,9 @@ void InternalAlgo::Remove (const Standard_Integer I)
 {
   Standard_OutOfRange_Raise_if
     (I == 0 || I > myShapes.Length(),
-     "InternalAlgo::Remove : unknown Shape");
+     "HLRBRep_InternalAlgo::Remove : unknown Shape");
   myShapes.Remove(I);
-
+  
   myMapOfShapeTool.Clear();
   myDS.Nullify();
 }
@@ -222,14 +231,14 @@ void InternalAlgo::ShapeData (const Standard_Integer I,
 {
   Standard_OutOfRange_Raise_if
     (I == 0 || I > myShapes.Length(),
-     "InternalAlgo::ShapeData : unknown Shape");
+     "HLRBRep_InternalAlgo::ShapeData : unknown Shape");
 
   myShapes(I).ShapeData(SData);
 }
 
 //-----------------------------------------------------------------------------
 
-SeqOfShapeBounds & InternalAlgo::GetSeqOfShapeBounds ()
+HLRBRep_SeqOfShapeBounds & InternalAlgo::SeqOfShapeBounds ()
 {
   return myShapes;
 }
@@ -241,12 +250,12 @@ Standard_Integer InternalAlgo::NbShapes () const
 
 //-----------------------------------------------------------------------------
 
-ShapeBounds & InternalAlgo::
-GetShapeBounds (const Standard_Integer I)
+HLRBRep_ShapeBounds & InternalAlgo::
+ShapeBounds (const Standard_Integer I)
 {
   Standard_OutOfRange_Raise_if
     (I == 0 || I > myShapes.Length(),
-     "InternalAlgo::ShapeBounds : unknown Shape");
+     "HLRBRep_InternalAlgo::ShapeBounds : unknown Shape");
 
   return myShapes(I);
 }
@@ -256,34 +265,34 @@ GetShapeBounds (const Standard_Integer I)
 void InternalAlgo::InitEdgeStatus ()
 {
   Standard_Boolean visible;
-  FaceIterator faceIt;
-
-  Array1OfEData& aEDataArray = myDS->EDataArray();
-  Array1OfFData& aFDataArray = myDS->FDataArray();
+  HLRBRep_FaceIterator faceIt;
+  
+  HLRBRep_Array1OfEData& aEDataArray = myDS->EDataArray();
+  HLRBRep_Array1OfFData& aFDataArray = myDS->FDataArray();
   Standard_Integer ne = myDS->NbEdges();
   Standard_Integer nf = myDS->NbFaces();
 
   for (Standard_Integer e = 1; e <= ne; e++) {
-    EdgeData& ed = aEDataArray.ChangeValue(e);
+    HLRBRep_EdgeData& ed = aEDataArray.ChangeValue(e);
     if (ed.Selected()) ed.Status().ShowAll();
   }
 //  for (Standard_Integer f = 1; f <= nf; f++) {
   Standard_Integer f;
   for ( f = 1; f <= nf; f++) {
-    FaceData& fd = aFDataArray.ChangeValue(f);
+    HLRBRep_FaceData& fd = aFDataArray.ChangeValue(f);
     if (fd.Selected()) {
-
+      
       for (faceIt.InitEdge(fd);
 	   faceIt.MoreEdge();
 	   faceIt.NextEdge()) {
-	EdgeData* edf = &(myDS->EDataArray().ChangeValue(faceIt.Edge()));
+	HLRBRep_EdgeData* edf = &(myDS->EDataArray().ChangeValue(faceIt.Edge()));
 	if (edf->Selected()) edf->Status().HideAll();
       }
     }
   }
 
   for (f = 1; f <= nf; f++) {
-    FaceData& fd = aFDataArray.ChangeValue(f);
+    HLRBRep_FaceData& fd = aFDataArray.ChangeValue(f);
     visible = Standard_True;
     if (fd.Selected() && fd.Closed()) {
       if      ( fd.Side())      visible =  Standard_False;
@@ -295,14 +304,14 @@ void InternalAlgo::InitEdgeStatus ()
 	case TopAbs_INTERNAL : visible =  Standard_True; break;
         }
       }
-    }
+    } 
     if (visible) {
-
+      
       for (faceIt.InitEdge(fd);
 	   faceIt.MoreEdge();
 	   faceIt.NextEdge()) {
 	Standard_Integer E = faceIt.Edge();
-	EdgeData* edf = &(myDS->EDataArray().ChangeValue(E));
+	HLRBRep_EdgeData* edf = &(myDS->EDataArray().ChangeValue(E));
 	if ( edf->Selected() &&
 	    !edf->Vertical())
 	  edf->Status().ShowAll();
@@ -316,18 +325,18 @@ void InternalAlgo::InitEdgeStatus ()
 void InternalAlgo::Select ()
 {
   if (!myDS.IsNull()) {
-    Array1OfEData& aEDataArray = myDS->EDataArray();
-    Array1OfFData& aFDataArray = myDS->FDataArray();
+    HLRBRep_Array1OfEData& aEDataArray = myDS->EDataArray();
+    HLRBRep_Array1OfFData& aFDataArray = myDS->FDataArray();
     Standard_Integer ne = myDS->NbEdges();
     Standard_Integer nf = myDS->NbFaces();
-
+    
     for (Standard_Integer e = 1; e <= ne; e++) {
-      EdgeData& ed = aEDataArray.ChangeValue(e);
+      HLRBRep_EdgeData& ed = aEDataArray.ChangeValue(e);
       ed.Selected(Standard_True);
     }
-
+    
     for (Standard_Integer f = 1; f <= nf; f++) {
-      FaceData& fd = aFDataArray.ChangeValue(f);
+      HLRBRep_FaceData& fd = aFDataArray.ChangeValue(f);
       fd.Selected(Standard_True);
     }
   }
@@ -337,26 +346,26 @@ void InternalAlgo::Select ()
 
 void InternalAlgo::Select (const Standard_Integer I)
 {
-  if (!myDS.IsNull()) {
+  if (!myDS.IsNull()) { 
     Standard_OutOfRange_Raise_if
       (I == 0 || I > myShapes.Length(),
-       "InternalAlgo::Select : unknown Shape");
+       "HLRBRep_InternalAlgo::Select : unknown Shape");
 
     Standard_Integer v1,v2,e1,e2,f1,f2;
     myShapes(I).Bounds(v1,v2,e1,e2,f1,f2);
-
-    Array1OfEData& aEDataArray = myDS->EDataArray();
-    Array1OfFData& aFDataArray = myDS->FDataArray();
+    
+    HLRBRep_Array1OfEData& aEDataArray = myDS->EDataArray();
+    HLRBRep_Array1OfFData& aFDataArray = myDS->FDataArray();
     Standard_Integer ne = myDS->NbEdges();
     Standard_Integer nf = myDS->NbFaces();
-
+    
     for (Standard_Integer e = 1; e <= ne; e++) {
-      EdgeData& ed = aEDataArray.ChangeValue(e);
+      HLRBRep_EdgeData& ed = aEDataArray.ChangeValue(e);
       ed.Selected(e >= e1 && e <= e2);
     }
-
+    
     for (Standard_Integer f = 1; f <= nf; f++) {
-      FaceData& fd = aFDataArray.ChangeValue(f);
+      HLRBRep_FaceData& fd = aFDataArray.ChangeValue(f);
       fd.Selected(f >= f1 && f <= f2);
     }
   }
@@ -369,16 +378,16 @@ void InternalAlgo::SelectEdge (const Standard_Integer I)
   if (!myDS.IsNull()) {
     Standard_OutOfRange_Raise_if
       (I == 0 || I > myShapes.Length(),
-       "InternalAlgo::SelectEdge : unknown Shape");
-
+       "HLRBRep_InternalAlgo::SelectEdge : unknown Shape");
+    
     Standard_Integer v1,v2,e1,e2,f1,f2;
     myShapes(I).Bounds(v1,v2,e1,e2,f1,f2);
-
-    Array1OfEData& aEDataArray = myDS->EDataArray();
+    
+    HLRBRep_Array1OfEData& aEDataArray = myDS->EDataArray();
     Standard_Integer ne = myDS->NbEdges();
-
+    
     for (Standard_Integer e = 1; e <= ne; e++) {
-      EdgeData& ed = aEDataArray.ChangeValue(e);
+      HLRBRep_EdgeData& ed = aEDataArray.ChangeValue(e);
       ed.Selected(e >= e1 && e <= e2);
     }
   }
@@ -391,16 +400,16 @@ void InternalAlgo::SelectFace (const Standard_Integer I)
   if (!myDS.IsNull()) {
     Standard_OutOfRange_Raise_if
       (I == 0 || I > myShapes.Length(),
-       "InternalAlgo::SelectFace : unknown Shape");
-
+       "HLRBRep_InternalAlgo::SelectFace : unknown Shape");
+    
     Standard_Integer v1,v2,e1,e2,f1,f2;
     myShapes(I).Bounds(v1,v2,e1,e2,f1,f2);
-
-    Array1OfFData& aFDataArray = myDS->FDataArray();
+    
+    HLRBRep_Array1OfFData& aFDataArray = myDS->FDataArray();
     Standard_Integer nf = myDS->NbFaces();
-
+    
     for (Standard_Integer f = 1; f <= nf; f++) {
-      FaceData& fd = aFDataArray.ChangeValue(f);
+      HLRBRep_FaceData& fd = aFDataArray.ChangeValue(f);
       fd.Selected(f >= f1 && f <= f2);
     }
   }
@@ -411,11 +420,11 @@ void InternalAlgo::SelectFace (const Standard_Integer I)
 void InternalAlgo::ShowAll ()
 {
   if (!myDS.IsNull()) {
-    Array1OfEData& aEDataArray = myDS->EDataArray();
+    HLRBRep_Array1OfEData& aEDataArray = myDS->EDataArray();
     Standard_Integer ne = myDS->NbEdges();
 
     for (Standard_Integer ie = 1; ie <= ne; ie++) {
-      EdgeData& ed = aEDataArray.ChangeValue(ie);
+      HLRBRep_EdgeData& ed = aEDataArray.ChangeValue(ie);
       ed.Status().ShowAll();
     }
   }
@@ -428,15 +437,15 @@ void InternalAlgo::ShowAll (const Standard_Integer I)
   if (!myDS.IsNull()) {
     Standard_OutOfRange_Raise_if
       (I == 0 || I > myShapes.Length(),
-       "InternalAlgo::ShowAll : unknown Shape");
-
+       "HLRBRep_InternalAlgo::ShowAll : unknown Shape");
+    
     Select(I);
-
-    Array1OfEData& aEDataArray = myDS->EDataArray();
+    
+    HLRBRep_Array1OfEData& aEDataArray = myDS->EDataArray();
     Standard_Integer ne = myDS->NbEdges();
-
+    
     for (Standard_Integer e = 1; e <= ne; e++) {
-      EdgeData& ed = aEDataArray.ChangeValue(e);
+      HLRBRep_EdgeData& ed = aEDataArray.ChangeValue(e);
       if (ed.Selected()) ed.Status().ShowAll();
     }
   }
@@ -447,11 +456,11 @@ void InternalAlgo::ShowAll (const Standard_Integer I)
 void InternalAlgo::HideAll ()
 {
   if (!myDS.IsNull()) {
-    Array1OfEData& aEDataArray = myDS->EDataArray();
+    HLRBRep_Array1OfEData& aEDataArray = myDS->EDataArray();
     Standard_Integer ne = myDS->NbEdges();
-
+    
     for (Standard_Integer ie = 1; ie <= ne; ie++) {
-      EdgeData& ed = aEDataArray.ChangeValue(ie);
+      HLRBRep_EdgeData& ed = aEDataArray.ChangeValue(ie);
       ed.Status().HideAll();
     }
   }
@@ -464,15 +473,15 @@ void InternalAlgo::HideAll (const Standard_Integer I)
   if (!myDS.IsNull()) {
     Standard_OutOfRange_Raise_if
       (I == 0 || I > myShapes.Length(),
-       "InternalAlgo::HideAll : unknown Shape");
-
+       "HLRBRep_InternalAlgo::HideAll : unknown Shape");
+    
     Select(I);
-
-    Array1OfEData& aEDataArray = myDS->EDataArray();
+    
+    HLRBRep_Array1OfEData& aEDataArray = myDS->EDataArray();
     Standard_Integer ne = myDS->NbEdges();
-
+    
     for (Standard_Integer e = 1; e <= ne; e++) {
-      EdgeData& ed = aEDataArray.ChangeValue(e);
+      HLRBRep_EdgeData& ed = aEDataArray.ChangeValue(e);
       if (ed.Selected()) ed.Status().HideAll();
     }
   }
@@ -490,7 +499,7 @@ void InternalAlgo::PartialHide ()
 
     for (i = 1; i <= n; i++)
       Hide(i);
-
+    
     Select();
   }
 }
@@ -507,11 +516,11 @@ void InternalAlgo::Hide ()
 
     for (i = 1; i <= n; i++)
       Hide(i);
-
+    
     for (i = 1; i <= n; i++)
       for (j = 1; j <= n; j++)
 	if (i != j) Hide(i,j);
-
+    
     Select();
   }
 }
@@ -523,11 +532,11 @@ void InternalAlgo::Hide (const Standard_Integer I)
   if (!myDS.IsNull()) {
     Standard_OutOfRange_Raise_if
       (I == 0 || I > myShapes.Length(),
-       "InternalAlgo::Hide : unknown Shape");
-
+       "HLRBRep_InternalAlgo::Hide : unknown Shape");
+    
     if (myDebug)
       std::cout << " hiding the shape " << I << " by itself" << std::endl;
-
+    
     Select(I);
     InitEdgeStatus();
     HideSelected(I,Standard_True);
@@ -543,7 +552,7 @@ void InternalAlgo::Hide (const Standard_Integer I,
     Standard_OutOfRange_Raise_if
       (I == 0 || I > myShapes.Length() ||
        J == 0 || J > myShapes.Length(),
-       "InternalAlgo::Hide : unknown Shapes");
+       "HLRBRep_InternalAlgo::Hide : unknown Shapes");
 
     if (I == J) Hide(I);
     else {
@@ -595,19 +604,18 @@ void InternalAlgo::HideSelected (const Standard_Integer I,
   }
 #endif
 
-  ShapeBounds& SB = myShapes(I);
+  HLRBRep_ShapeBounds& SB = myShapes(I);
   Standard_Integer v1,v2,e1,e2,f1,f2;
   SB.Bounds(v1,v2,e1,e2,f1,f2);
 
-  if (e2 >= e1)
-  {
+  if (e2 >= e1) {
     myDS->InitBoundSort(SB.MinMax(),e1,e2);
     Hider Cache(myDS, m_progress);
-    Array1OfEData& aEDataArray = myDS->EDataArray();
-    Array1OfFData& aFDataArray = myDS->FDataArray();
+    HLRBRep_Array1OfEData& aEDataArray = myDS->EDataArray();
+    HLRBRep_Array1OfFData& aFDataArray = myDS->FDataArray();
     Standard_Integer ne = myDS->NbEdges();
     Standard_Integer nf = myDS->NbFaces();
-
+    
     if (myDebug) {
       nbVisEdges = 0;
       nbSelEdges = 0;
@@ -615,17 +623,17 @@ void InternalAlgo::HideSelected (const Standard_Integer I,
       nbCache = 0;
       nbFSide = 0;
       nbFSimp = 0;
-
+      
       for (e = 1; e <= ne; e++) {
-        EdgeData& ed = aEDataArray.ChangeValue(e);
+        HLRBRep_EdgeData& ed = aEDataArray.ChangeValue(e);
         if (ed.Selected()) {
 	  nbSelEdges++;
 	  if (!ed.Status().AllHidden()) nbVisEdges++;
 	}
       }
-
+      
       for (f = 1; f <= nf; f++) {
-        FaceData& fd = aFDataArray.ChangeValue(f);
+        HLRBRep_FaceData& fd = aFDataArray.ChangeValue(f);
         if (fd.Selected()) {
 	  nbSelFaces++;
 	  if (fd.Hiding()) nbCache++;
@@ -633,7 +641,7 @@ void InternalAlgo::HideSelected (const Standard_Integer I,
 	  if (fd.Simple()) nbFSimp++;
 	}
       }
-
+      
       if (myDebug)
       {
         std::cout << std::endl;
@@ -656,44 +664,32 @@ void InternalAlgo::HideSelected (const Standard_Integer I,
     Standard_Integer QWE=0,QWEQWE;
     QWEQWE=nf/10;
 
-    if ( SideFace )
-    {
+    if (SideFace) {
       j = 0;
-
-      for ( f = 1; f <= nf; f++ )
-      {
-        FaceData& fd = aFDataArray.ChangeValue(f);
-
-        if ( m_progress.IsCancelling() )
-          return;
-
-        if ( fd.Selected() )
-        {
-          if ( fd.Side() )
-          {
-            if ( InternalAlgo_TRACE10 )
-            {
-              if ( ++QWE > QWEQWE )
-              {
-                QWE=0;
-                if ( myDebug )
-                  std::cout << "*";
-              }
-            }
-            else
-            {
-              if ( myDebug && InternalAlgo_TRACE )
-              {
-                j++;
-                std::cout << " OwnHiding " << j << " of face : " << f << std::endl;
-              }
-            }
-            Cache.OwnHiding(f);
-          }
-        }
+      
+      for (f = 1; f <= nf; f++) {
+        HLRBRep_FaceData& fd = aFDataArray.ChangeValue(f);
+        if (fd.Selected()) {
+	  if (fd.Side()) {
+	    if(HLRBRep_InternalAlgo_TRACE10) { 
+	      if(++QWE>QWEQWE) { 
+		QWE=0; 
+                if (myDebug)
+                  std::cout<<"*";
+	      } 
+	    }
+	    else {  
+	      if (myDebug && HLRBRep_InternalAlgo_TRACE) {
+		j++;
+		std::cout << " OwnHiding " << j << " of face : " << f << std::endl;
+	      }
+	    }
+	    Cache.OwnHiding(f);
+	  }
+	}
       }
     }
-
+    
 
 //--
     TColStd_Array1OfInteger Val(1, nf);
@@ -702,7 +698,7 @@ void InternalAlgo::HideSelected (const Standard_Integer I,
 
 
     for (f = 1; f <= nf; f++) {
-      FaceData& fd = aFDataArray.ChangeValue(f);
+      HLRBRep_FaceData& fd = aFDataArray.ChangeValue(f);
       if (fd.Plane())          Val(f) = 10;
       else if(fd.Cylinder())  Val(f)=9;
       else if(fd.Cone())      Val(f)=8;
@@ -712,29 +708,29 @@ void InternalAlgo::HideSelected (const Standard_Integer I,
       if(fd.Cut())            Val(f)-=10;
       if(fd.Side())           Val(f)-=100;
       if(fd.WithOutL())       Val(f)-=20;
-
+  
       Size(f)=fd.Size();
 
       if ( m_progress.IsCancelling() )
         return;
     }
 
-    for(Standard_Integer tt=1;tt<=nf;tt++) {
+    for(Standard_Integer tt=1;tt<=nf;tt++) { 
       Index(tt)=tt;
     }
 
     //-- ======================================================================
 /*    Standard_Boolean TriOk; //-- a refaire
-    do {
+    do { 
       Standard_Integer t,tp1;
       TriOk=Standard_True;
-      for(t=1,tp1=2;t<nf;t++,tp1++) {
+      for(t=1,tp1=2;t<nf;t++,tp1++) { 
 	if(Val(Index(t))<Val(Index(tp1))) {
 	  Standard_Integer q=Index(t); Index(t)=Index(tp1); Index(tp1)=q;
 	  TriOk=Standard_False;
 	}
-	else if(Val(Index(t))==Val(Index(tp1))) {
-	  if(Size(Index(t))<Size(Index(tp1))) {
+	else if(Val(Index(t))==Val(Index(tp1))) { 
+	  if(Size(Index(t))<Size(Index(tp1))) { 
 	    Standard_Integer q=Index(t); Index(t)=Index(tp1); Index(tp1)=q;
 	    TriOk=Standard_False;
 	  }
@@ -749,40 +745,40 @@ void InternalAlgo::HideSelected (const Standard_Integer I,
       Standard_Integer rra;
       l=(nf>>1)+1;
       ir=nf;
-      for(;;) {
-	if(l>1) {
-	  rra=Index(--l);
-	}
-	else {
-	  rra=Index(ir);
+      for(;;) { 
+	if(l>1) { 
+	  rra=Index(--l); 
+	} 
+	else {    
+	  rra=Index(ir); 
 	  Index(ir)=Index(1);
-	  if(--ir == 1) {
+	  if(--ir == 1) { 
 	    Index(1)=rra;
 	    break;
 	  }
 	}
 	i=l;
 	k=l+l;
-	while(k<=ir) {
-	  if(k<ir) {
+	while(k<=ir) { 
+	  if(k<ir) { 
 	    if(Val(Index(k)) > Val(Index(k+1)))
 	      k++;
-	    else if(Val(Index(k)) == Val(Index(k+1))) {
-	      if(Size(Index(k)) > Size(Index(k+1)))
+	    else if(Val(Index(k)) == Val(Index(k+1))) { 
+	      if(Size(Index(k)) > Size(Index(k+1))) 
 		k++;
 	    }
 	  }
-	  if(Val(rra) > Val(Index(k))) {
+	  if(Val(rra) > Val(Index(k))) { 
 	    Index(i)=Index(k);
 	    i=k;
 	    k<<=1;
 	  }
-	  else if((Val(rra) == Val(Index(k))) && (Size(rra) > Size(Index(k)))) {
+	  else if((Val(rra) == Val(Index(k))) && (Size(rra) > Size(Index(k)))) { 
 	    Index(i)=Index(k);
 	    i=k;
 	    k<<=1;
 	  }
-	  else {
+	  else {  
 	    k=ir+1;
 	  }
 	}
@@ -791,47 +787,39 @@ void InternalAlgo::HideSelected (const Standard_Integer I,
     }
 
     j = 0;
-
+    
     QWE=0;
-    for ( f = 1; f <= nf; f++ )
-    {
+    for (f = 1; f <= nf; f++) {
       if ( m_progress.IsCancelling() )
         return;
-
       Standard_Integer fi = Index(f);
-      FaceData& fd = aFDataArray.ChangeValue(fi);
-
-      if ( fd.Selected() )
-      {
-        if ( fd.Hiding() )
-        {
-          if ( InternalAlgo_TRACE10 && InternalAlgo_TRACE == Standard_False )
-          {
-            if ( ++QWE > QWEQWE )
-            {
-              if ( myDebug )
+      HLRBRep_FaceData& fd = aFDataArray.ChangeValue(fi);
+      if (fd.Selected()) {
+	if (fd.Hiding()) {
+	  if(HLRBRep_InternalAlgo_TRACE10 && HLRBRep_InternalAlgo_TRACE==Standard_False) { 
+	    if(++QWE>QWEQWE) { 
+	      if (myDebug)
                 std::cout<<".";
-              QWE=0;
-            }
-          }
-          else if (myDebug && InternalAlgo_TRACE)
-          {
-            static int rty=0;
-            j++;
-            printf("%6d",fi); fflush(stdout);
-            if(++rty>25) { rty=0; printf("\n"); }
-          }
-          Cache.Hide(fi, myMapOfShapeTool);
-        }
+	      QWE=0;
+	    }
+	  }
+	  else if (myDebug && HLRBRep_InternalAlgo_TRACE) {
+	    static int rty=0;
+	    j++;
+	    printf("%6d",fi); fflush(stdout);
+	    if(++rty>25) { rty=0; printf("\n"); } 
+	  }
+	  Cache.Hide(fi,myMapOfShapeTool);
+	}
       }
     }
-
+    
 #ifdef OCCT_DEBUG
     if (myDebug) {
       nbFSimp = 0;
-
+      
       for (f = 1; f <= nf; f++) {
-        FaceData& fd = aFDataArray.ChangeValue(f);
+        HLRBRep_FaceData& fd = aFDataArray.ChangeValue(f);
         if (fd.Selected() && fd.Simple())
 	  nbFSimp++;
       }
@@ -869,5 +857,5 @@ Standard_Boolean InternalAlgo::Debug () const
 
 //-----------------------------------------------------------------------------
 
-Handle(Data) InternalAlgo::DataStructure () const
+Handle(HLRBRep_Data) InternalAlgo::DataStructure () const
 { return myDS; }
