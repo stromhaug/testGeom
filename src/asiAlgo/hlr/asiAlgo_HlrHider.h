@@ -35,6 +35,9 @@ class HLRBRep_Data;
 namespace asiAlgo {
 namespace hlr {
 
+//! \ingroup ASI_MODELING
+//!
+//! Internal utility of Precise HLR algorithm.
 class Hider
 {
 public:

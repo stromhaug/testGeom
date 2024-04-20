@@ -38,6 +38,8 @@ namespace hlr {
 
 class PreciseAlgo;
 
+//! \ingroup ASI_MODELING
+//!
 //! A framework for filtering the computation
 //! results of an HLRBRep_Algo algorithm by extraction.
 //! From the results calculated by the algorithm on

@@ -38,7 +38,7 @@ namespace asiAlgo {
 namespace hlr {
 
 class InternalAlgo;
-DEFINE_STANDARD_HANDLE(InternalAlgo, Standard_Transient)
+DEFINE_STANDARD_HANDLE(InternalAlgo, ActAPI_IAlgorithm)
 
 //! \ingroup ASI_MODELING
 //!
@@ -135,7 +135,7 @@ public:
 
 
 
-  DEFINE_STANDARD_RTTIEXT(InternalAlgo,Standard_Transient)
+  DEFINE_STANDARD_RTTIEXT(InternalAlgo,ActAPI_IAlgorithm)
 
 protected:
 

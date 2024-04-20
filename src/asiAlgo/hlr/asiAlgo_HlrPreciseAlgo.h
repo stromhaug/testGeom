@@ -29,6 +29,8 @@ namespace hlr {
 class PreciseAlgo;
 DEFINE_STANDARD_HANDLE(PreciseAlgo, InternalAlgo)
 
+//! \ingroup ASI_MODELING
+//!
 //! Inherited  from InternalAlgo  to  provide  methods with Shape from TopoDS.
 //! A framework to compute a shape as seen in a projection plane. This is done by
 //! calculating the visible and the hidden parts of the shape.
