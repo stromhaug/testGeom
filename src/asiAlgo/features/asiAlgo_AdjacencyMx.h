@@ -53,7 +53,13 @@
 
 //! \ingroup ASI_AFR
 //!
-//! Adjacency matrix.
+//! Adjacency matrix for all sorts of directed and undirected topology graphs,
+//! such as face adjacency graphs (including AAG). In this matrix, we store
+//! adjacency lists by rows:
+//!
+//! face 1 : <neighbor 1, neighbor 2, etc.>
+//! face 2 : <neighbor 1, neighbor 2, etc.>
+//! ...
 class asiAlgo_AdjacencyMx
 {
 public:
