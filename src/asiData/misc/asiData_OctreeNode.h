@@ -160,13 +160,13 @@ public:
     SetOctree(void* pOctree);
 
   //! \return uniform grid.
-  asiData_EXPORT Handle(asiAlgo_UniformGrid<float>)
+  asiData_EXPORT opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >
     GetUniformGrid() const;
 
   //! Sets the uniform grid to store.
   //! \param[in] grid uniform grid to store.
   asiData_EXPORT void
-    SetUniformGrid(const Handle(asiAlgo_UniformGrid<float>)& grid);
+    SetUniformGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid);
 
   //! \return sampling strategy as integer.
   asiData_EXPORT int

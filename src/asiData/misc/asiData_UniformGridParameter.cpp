@@ -56,10 +56,10 @@ Handle(asiData_UniformGridParameter) asiData_UniformGridParameter::Instance()
 //! \param[in] doResetValidity indicates whether to reset validity flag.
 //! \param[in] doResetPending  indicates whether this Parameter must lose its
 //!                            PENDING (or out-dated) property.
-void asiData_UniformGridParameter::SetGrid(const Handle(asiAlgo_UniformGrid<float>)& grid,
-                                           const ActAPI_ModificationType             MType,
-                                           const bool                                doResetValidity,
-                                           const bool                                doResetPending)
+void asiData_UniformGridParameter::SetGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid,
+                                           const ActAPI_ModificationType                                               MType,
+                                           const bool                                                                  doResetValidity,
+                                           const bool                                                                  doResetPending)
 {
   if ( this->IsDetached() )
     Standard_ProgramError::Raise("Cannot access detached data");
@@ -80,7 +80,8 @@ void asiData_UniformGridParameter::SetGrid(const Handle(asiAlgo_UniformGrid<floa
 
 //! Accessor for the stored uniform grid.
 //! \return stored uniform grid.
-Handle(asiAlgo_UniformGrid<float>) asiData_UniformGridParameter::GetGrid()
+opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >
+  asiData_UniformGridParameter::GetGrid()
 {
   if ( !this->IsWellFormed() )
     Standard_ProgramError::Raise("Data inconsistent");

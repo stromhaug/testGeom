@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// Created on: 11 April 2020
+// Created on: 25 April 2024
 //-----------------------------------------------------------------------------
-// Copyright (c) 2020-present, Sergey Slyadnev
+// Copyright (c) 2024-present, Sergey Slyadnev
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,73 +28,26 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //-----------------------------------------------------------------------------
 
-#ifndef asiData_UniformGridAttr_h
-#define asiData_UniformGridAttr_h
-
-// asiData includes
-#include <asiData.h>
+#ifndef asiAlgo_FaceProbe_h
+#define asiAlgo_FaceProbe_h
 
 // asiAlgo includes
-#include <asiAlgo_FaceProbe.h>
-#include <asiAlgo_UniformGrid.h>
+#include <asiAlgo.h>
 
-// OCCT includes
-#include <TDF_Attribute.hxx>
-#include <TDF_Label.hxx>
+// OpenCascade includes
+#include <gp_Vec.hxx>
 
-//! OCAF Attribute representing uniform decomposition of space.
-class asiData_UniformGridAttr : public TDF_Attribute
+//-----------------------------------------------------------------------------
+
+//! \ingroup ASI_MODELING
+//!
+//! Point data probed at a face.
+struct asiAlgo_FaceProbe
 {
-public:
+  float  s; //!< Scalar.
+  gp_Vec N; //!< Face normal at a point.
 
-  // OCCT RTTI
-  DEFINE_STANDARD_RTTI_INLINE(asiData_UniformGridAttr, TDF_Attribute)
-
-// Construction & settling-down routines:
-public:
-
-  asiData_EXPORT
-    asiData_UniformGridAttr();
-
-  asiData_EXPORT static Handle(asiData_UniformGridAttr)
-    Set(const TDF_Label& Label);
-
-// GUID accessors:
-public:
-
-  asiData_EXPORT static const Standard_GUID&
-    GUID();
-
-  asiData_EXPORT virtual const Standard_GUID&
-    ID() const;
-
-// Attribute's kernel methods:
-public:
-
-  asiData_EXPORT virtual Handle(TDF_Attribute)
-    NewEmpty() const;
-
-  asiData_EXPORT virtual void
-    Restore(const Handle(TDF_Attribute)& mainAttr);
-
-  asiData_EXPORT virtual void
-    Paste(const Handle(TDF_Attribute)&       into,
-          const Handle(TDF_RelocationTable)& relocTable) const;
-
-// Accessors for domain-specific data:
-public:
-
-  asiData_EXPORT void
-    SetGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid);
-
-  asiData_EXPORT const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >&
-    GetGrid() const;
-
-// Members:
-private:
-
-  opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> > m_grid; //!< Uniform grid.
-
+  asiAlgo_FaceProbe() : s(0.) {} //!< Default ctor.
 };
 
 #endif

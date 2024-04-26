@@ -35,6 +35,7 @@
 #include <asiVisu.h>
 
 // asiAlgo includes
+#include <asiAlgo_FaceProbe.h>
 #include <asiAlgo_UniformGrid.h>
 
 // Active Data includes
@@ -88,10 +89,10 @@ public:
   //! Sets input uniform (non-adaptive) grid.
   //! \param[in] grid uniform grid to set.
   asiVisu_EXPORT void
-    SetInputGrid(const Handle(asiAlgo_UniformGrid<float>)& grid);
+    SetInputGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid);
 
   //! \return input uniform grid.
-  asiVisu_EXPORT const Handle(asiAlgo_UniformGrid<float>)&
+  asiVisu_EXPORT const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >&
     GetInputGrid() const;
 
   //! Sets sampling strategy.
@@ -224,7 +225,7 @@ private:
 private:
 
   //! Uniform grid.
-  Handle(asiAlgo_UniformGrid<float>) m_grid;
+  opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> > m_grid;
 
   //! Min scalar.
   double m_fMinScalar;

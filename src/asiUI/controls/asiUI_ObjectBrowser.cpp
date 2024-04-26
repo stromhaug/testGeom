@@ -1031,7 +1031,7 @@ void asiUI_ObjectBrowser::onSaveToREK()
     N = Handle(asiData_OctreeNode)::DownCast(selected_n);
 
   // Get the uniform grid to save to REK.
-  Handle(asiAlgo_UniformGrid<float>) grid = N->GetUniformGrid();
+  opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> > grid = N->GetUniformGrid();
   //
   if ( grid.IsNull() )
   {

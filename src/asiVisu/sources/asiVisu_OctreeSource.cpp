@@ -135,7 +135,7 @@ void* asiVisu_OctreeSource::GetInputOctree() const
 
 //-----------------------------------------------------------------------------
 
-void asiVisu_OctreeSource::SetInputGrid(const Handle(asiAlgo_UniformGrid<float>)& grid)
+void asiVisu_OctreeSource::SetInputGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid)
 {
   m_grid = grid;
   //
@@ -144,7 +144,7 @@ void asiVisu_OctreeSource::SetInputGrid(const Handle(asiAlgo_UniformGrid<float>)
 
 //-----------------------------------------------------------------------------
 
-const Handle(asiAlgo_UniformGrid<float>)&
+const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >&
   asiVisu_OctreeSource::GetInputGrid() const
 {
   return m_grid;
@@ -476,14 +476,14 @@ void asiVisu_OctreeSource::addUniformVoxels(vtkUnstructuredGrid* pData)
         if ( (i < m_grid->Nx) && (j < m_grid->Ny) && (k < m_grid->Nz) )
         {
           const double
-            sc[8] = { m_grid->pArray[i]    [j]    [k],
-                      m_grid->pArray[i + 1][j]    [k],
-                      m_grid->pArray[i]    [j + 1][k],
-                      m_grid->pArray[i + 1][j + 1][k],
-                      m_grid->pArray[i]    [j]    [k + 1],
-                      m_grid->pArray[i + 1][j]    [k + 1],
-                      m_grid->pArray[i]    [j + 1][k + 1],
-                      m_grid->pArray[i + 1][j + 1][k + 1] };
+            sc[8] = { m_grid->pArray[i]    [j]    [k].s,
+                      m_grid->pArray[i + 1][j]    [k].s,
+                      m_grid->pArray[i]    [j + 1][k].s,
+                      m_grid->pArray[i + 1][j + 1][k].s,
+                      m_grid->pArray[i]    [j]    [k + 1].s,
+                      m_grid->pArray[i + 1][j]    [k + 1].s,
+                      m_grid->pArray[i]    [j + 1][k + 1].s,
+                      m_grid->pArray[i + 1][j + 1][k + 1].s };
 
           const bool isOn  = ::IsZeroCrossing (sc);
           const bool isIn  = ::IsIn           (sc);

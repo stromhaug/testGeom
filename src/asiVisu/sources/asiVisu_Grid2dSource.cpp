@@ -100,7 +100,7 @@ asiVisu_Grid2dSource::~asiVisu_Grid2dSource()
 
 //-----------------------------------------------------------------------------
 
-void asiVisu_Grid2dSource::SetInputGrid(const Handle(asiAlgo_UniformGrid<float>)& grid)
+void asiVisu_Grid2dSource::SetInputGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid)
 {
   m_grid = grid;
   //
@@ -109,7 +109,7 @@ void asiVisu_Grid2dSource::SetInputGrid(const Handle(asiAlgo_UniformGrid<float>)
 
 //-----------------------------------------------------------------------------
 
-const Handle(asiAlgo_UniformGrid<float>)&
+const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >&
   asiVisu_Grid2dSource::GetInputGrid() const
 {
   return m_grid;
@@ -199,10 +199,10 @@ void asiVisu_Grid2dSource::addUniformVoxels(vtkUnstructuredGrid* pData)
       if ( (i < m_grid->Nx) && (j < m_grid->Ny) )
       {
         const double
-          sc[4] = { m_grid->pArray[i]    [j]    [0],
-                    m_grid->pArray[i + 1][j]    [0],
-                    m_grid->pArray[i + 1][j + 1][0],
-                    m_grid->pArray[i]    [j + 1][0] };
+          sc[4] = { m_grid->pArray[i]    [j]    [0].s,
+                    m_grid->pArray[i + 1][j]    [0].s,
+                    m_grid->pArray[i + 1][j + 1][0].s,
+                    m_grid->pArray[i]    [j + 1][0].s };
 
         const bool isOn  = ::IsZeroCrossing (sc);
         const bool isIn  = ::IsIn           (sc);

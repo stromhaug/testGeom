@@ -120,7 +120,7 @@ void asiData_UniformGridAttr::Paste(const Handle(TDF_Attribute)&       into,
 
 //! Sets uniform grid to store.
 //! \param[in] grid grid to store.
-void asiData_UniformGridAttr::SetGrid(const Handle(asiAlgo_UniformGrid<float>)& grid)
+void asiData_UniformGridAttr::SetGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid)
 {
   this->Backup();
 
@@ -129,7 +129,8 @@ void asiData_UniformGridAttr::SetGrid(const Handle(asiAlgo_UniformGrid<float>)& 
 
 //! Returns the stored uniform grid.
 //! \return stored uniform grid.
-const Handle(asiAlgo_UniformGrid<float>)& asiData_UniformGridAttr::GetGrid() const
+const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >&
+  asiData_UniformGridAttr::GetGrid() const
 {
   return m_grid;
 }

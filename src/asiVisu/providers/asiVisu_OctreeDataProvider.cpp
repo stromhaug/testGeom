@@ -59,7 +59,7 @@ void* asiVisu_OctreeDataProvider::GetOctree() const
 
 //-----------------------------------------------------------------------------
 
-Handle(asiAlgo_UniformGrid<float>)
+opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >
   asiVisu_OctreeDataProvider::GetUniformGrid() const
 {
   return m_node->GetUniformGrid();

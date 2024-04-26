@@ -41,7 +41,7 @@
 //!
 //! Convenience class for a three-dimensional array which represents a
 //! uniform voxelization.
-template <typename T>
+template <typename TCoord, typename TValue>
 class asiAlgo_UniformGrid : public Standard_Transient
 {
 public:
@@ -54,13 +54,13 @@ public:
   //! \param[in] ny       num. of cells along OY axis.
   //! \param[in] nz       num. of cells along OZ axis.
   //! \param[in] cellSize cell size.
-  asiAlgo_UniformGrid(const T   xmin,
-                      const T   ymin,
-                      const T   zmin,
-                      const int nx,
-                      const int ny,
-                      const int nz,
-                      const T   cellSize)
+  asiAlgo_UniformGrid(const TCoord xmin,
+                      const TCoord ymin,
+                      const TCoord zmin,
+                      const int    nx,
+                      const int    ny,
+                      const int    nz,
+                      const TCoord cellSize)
   {
     XMin     = xmin;
     YMin     = ymin;
@@ -77,14 +77,14 @@ public:
     std::cout << "Memory threshold: " << uint64_t( sizeof(T)*(nx + 1)*(ny + 1)*(nz + 1) ) / (1024.*1024.) << "MiB" << std::endl;
 #endif
 
-    pArray = new T**[nx + 1];
+    pArray = new TValue**[nx + 1];
     //
     for ( int i = 0; i <= nx; ++i )
     {
-      pArray[i] = new T*[ny + 1];
+      pArray[i] = new TValue*[ny + 1];
       for ( int j = 0; j <= ny; ++j )
       {
-        pArray[i][j] = new T[nz + 1];
+        pArray[i][j] = new TValue[nz + 1];
       }
     }
   }
@@ -106,16 +106,16 @@ public:
 public:
 
   /* Min. corner. */
-  T XMin, YMin, ZMin;
+  TCoord XMin, YMin, ZMin;
 
   /* Number of cells in each direction. */
   int Nx, Ny, Nz;
 
   /* Cell size. */
-  T CellSize;
+  TCoord CellSize;
 
-  /* Array of scalars. */
-  T*** pArray;
+  /* Array of associated values. */
+  TValue*** pArray;
 };
 
 #endif

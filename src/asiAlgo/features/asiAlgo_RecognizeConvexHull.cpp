@@ -247,7 +247,7 @@ bool asiAlgo_RecognizeConvexHull::Perform()
                                      : asiAlgo_SampleFace::PmcAlgo_Precise);
     sampleFace.SetSquare  (true);
     //
-    if ( !sampleFace.Perform(m_iGridPts) )
+    if ( !sampleFace.Perform(m_iGridPts, m_iGridPts) )
       continue;
 
     Handle(asiAlgo_BaseCloud<double>) pts3d = sampleFace.GetResult3d();
@@ -290,8 +290,8 @@ bool asiAlgo_RecognizeConvexHull::Perform()
 
     if ( m_bCacheSampl )
     {
-      Handle(asiAlgo_AttrFaceUniformGrid) 
-        ug = new asiAlgo_AttrFaceUniformGrid(sampleFace.GetResult());
+      Handle(asiAlgo_AttrFaceUniformGrid)
+        ug = new asiAlgo_AttrFaceUniformGrid( sampleFace.GetResult() );
       //
       m_aag->SetNodeAttribute(f, ug);
     }

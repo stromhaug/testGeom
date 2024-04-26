@@ -4142,14 +4142,14 @@ int ENGINE_BuildFaceGrid(const Handle(asiTcl_Interp)& interp,
     sampleFace.SetSquare  ( interp->HasKeyword(argc, argv, "square") );
     sampleFace.SetPmcAlgo ( pmcAlgo );
     //
-    if ( !sampleFace.Perform(numBins) )
+    if ( !sampleFace.Perform(numBins, numBins) )
     {
       interp->GetProgress().SendLogMessage(LogErr(Normal) << "Failed to sample the face.");
       return TCL_ERROR;
     }
     //
-    const Handle(asiAlgo_UniformGrid<float>)& grid       = sampleFace.GetResult();
-    const Handle(asiAlgo::discr::Model)&      discrModel = sampleFace.GetDiscrModel();
+    const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid       = sampleFace.GetResult();
+    const Handle(asiAlgo::discr::Model)&                                        discrModel = sampleFace.GetDiscrModel();
 
     TIMER_FINISH
     TIMER_COUT_RESULT_NOTIFIER(interp->GetProgress(), "Build face grid")
@@ -4173,7 +4173,7 @@ int ENGINE_BuildFaceGrid(const Handle(asiTcl_Interp)& interp,
           unsigned char*
             pixel = static_cast<unsigned char*>( image->GetScalarPointer(i, j, 0) );
           //
-          const float isIn = grid->pArray[i][j][0];
+          const float isIn = grid->pArray[i][j][0].s;
 
           pixel[0] = isIn ? 0 : 255;
           pixel[1] = isIn ? 0 : 255;

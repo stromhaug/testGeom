@@ -279,7 +279,7 @@ int asiEngine_BuildOctreeFunc::execute(const Handle(ActAPI_HParameterList)& inpu
    *  Build uniform grid.
    * ==================== */
 
-  Handle(asiAlgo_UniformGrid<float>) uniformGrid;
+  opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> > uniformGrid;
 
   if ( isUniform )
   {

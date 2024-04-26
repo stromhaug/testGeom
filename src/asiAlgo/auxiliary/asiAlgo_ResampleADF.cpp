@@ -184,11 +184,11 @@ bool asiAlgo_ResampleADF::Perform(const float step)
   const int nz = int( (zMax - zMin) / zStep ) + 1;
 
   // Prepare the output grid.
-  m_grid = new asiAlgo_UniformGrid<float>( (float) xMin,
-                                           (float) yMin,
-                                           (float) zMin,
-                                            nx, ny, nz,
-                                           (float) step );
+  m_grid = new asiAlgo_UniformGrid<float, asiAlgo_FaceProbe>( (float) xMin,
+                                                              (float) yMin,
+                                                              (float) zMin,
+                                                              nx, ny, nz,
+                                                              (float) step );
 
 #ifdef USE_THREADING
   // Compute scalars.
@@ -221,7 +221,7 @@ bool asiAlgo_ResampleADF::Perform(const float)
 
 //-----------------------------------------------------------------------------
 
-const Handle(asiAlgo_UniformGrid<float>)& asiAlgo_ResampleADF::GetResult() const
+const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& asiAlgo_ResampleADF::GetResult() const
 {
   return m_grid;
 }

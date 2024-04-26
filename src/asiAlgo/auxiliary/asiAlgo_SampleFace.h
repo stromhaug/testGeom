@@ -35,6 +35,7 @@
 #include <asiAlgo_BaseCloud.h>
 #include <asiAlgo_DiscrClassifier2d.h>
 #include <asiAlgo_DiscrModel.h>
+#include <asiAlgo_FaceProbe.h>
 #include <asiAlgo_Membership.h>
 #include <asiAlgo_UniformGrid.h>
 
@@ -45,6 +46,8 @@
 #include <IntTools_FClass2d.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Wire.hxx>
+
+typedef asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> asiAlgo_FaceGrid;
 
 //-----------------------------------------------------------------------------
 
@@ -96,13 +99,15 @@ public:
     SetPmcAlgo(const PmcAlgo algo);
 
   //! Performs face sampling.
-  //! \param[in] numBins the number of discretization steps.
+  //! \param[in] numBinsU the number of discretization steps in U.
+  //! \param[in] numBinsV the number of discretization steps in V.
   //! \return true in case of success, false -- otherwise.
   asiAlgo_EXPORT bool
-    Perform(const int numBins);
+    Perform(const int numBinsU,
+            const int numBinsV);
 
   //! \return resulting grid.
-  asiAlgo_EXPORT const Handle(asiAlgo_UniformGrid<float>)&
+  asiAlgo_EXPORT const Handle(asiAlgo_FaceGrid)&
     GetResult() const;
 
   //! \return the sampled points in the modeling space.
@@ -142,7 +147,7 @@ protected:
   Handle(asiAlgo::discr::Classifier2d) m_discrClass;
 
   //! Uniform grid which is the result of the uniform sampling.
-  Handle(asiAlgo_UniformGrid<float>) m_grid;
+  Handle(asiAlgo_FaceGrid) m_grid;
 
   //! Discretized polygon.
   std::vector<gp_XY> m_polygon;

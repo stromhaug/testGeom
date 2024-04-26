@@ -58,7 +58,7 @@ asiAlgo_WriteREK::~asiAlgo_WriteREK()
 
 //-----------------------------------------------------------------------------
 
-bool asiAlgo_WriteREK::Write(const Handle(asiAlgo_UniformGrid<float>)& grid)
+bool asiAlgo_WriteREK::Write(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid)
 {
   // Contract check.
   if ( (m_pFILE == nullptr) || !m_pFILE->is_open() )
@@ -100,7 +100,7 @@ bool asiAlgo_WriteREK::Write(const Handle(asiAlgo_UniformGrid<float>)& grid)
       for ( int i = 0; i <= grid->Nx; ++i )
       {
         // Apply scaling.
-        const float val = grid->pArray[i][j][k]*m_fScaleCoeff;
+        const float val = grid->pArray[i][j][k].s * m_fScaleCoeff;
 
         // Write.
         m_pFILE->write( (char*) &val, sizeof(float) );

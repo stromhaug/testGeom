@@ -40,7 +40,7 @@ asiVisu_Grid2dDataProvider::asiVisu_Grid2dDataProvider(const Handle(asiData_Grid
 
 //-----------------------------------------------------------------------------
 
-Handle(asiAlgo_UniformGrid<float>)
+opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >
   asiVisu_Grid2dDataProvider::GetUniformGrid() const
 {
   return m_node->GetUniformGrid();

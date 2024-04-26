@@ -67,7 +67,8 @@ void asiVisu_Grid2dPipeline::SetInput(const Handle(asiVisu_DataProvider)& DP)
    *  Validate input Parameters.
    * =========================== */
 
-  Handle(asiAlgo_UniformGrid<float>) grid = provider->GetUniformGrid();
+  opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >
+    grid = provider->GetUniformGrid();
   //
   if ( grid.IsNull() )
   {

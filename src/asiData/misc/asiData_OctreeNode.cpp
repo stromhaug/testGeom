@@ -204,14 +204,14 @@ void asiData_OctreeNode::SetOctree(void* pOctree)
 
 //-----------------------------------------------------------------------------
 
-Handle(asiAlgo_UniformGrid<float>) asiData_OctreeNode::GetUniformGrid() const
+opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> > asiData_OctreeNode::GetUniformGrid() const
 {
   return Handle(asiData_UniformGridParameter)::DownCast( this->Parameter(PID_UniformGrid) )->GetGrid();
 }
 
 //-----------------------------------------------------------------------------
 
-void asiData_OctreeNode::SetUniformGrid(const Handle(asiAlgo_UniformGrid<float>)& grid)
+void asiData_OctreeNode::SetUniformGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid)
 {
   Handle(asiData_UniformGridParameter)::DownCast( this->Parameter(PID_UniformGrid) )->SetGrid(grid);
 }

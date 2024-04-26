@@ -62,7 +62,7 @@ public:
 
 public:
 
-  Handle(asiAlgo_UniformGrid<float>) Grid; //!< Uniform grid.
+  opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> > Grid; //!< Uniform grid.
 
 };
 
@@ -87,12 +87,12 @@ public:
 public:
 
   asiData_EXPORT void
-    SetGrid(const Handle(asiAlgo_UniformGrid<float>)& grid,
-            const ActAPI_ModificationType             MType           = MT_Touched,
-            const bool                                doResetValidity = true,
-            const bool                                doResetPending  = true);
+    SetGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid,
+            const ActAPI_ModificationType                                               MType           = MT_Touched,
+            const bool                                                                  doResetValidity = true,
+            const bool                                                                  doResetPending  = true);
 
-  asiData_EXPORT Handle(asiAlgo_UniformGrid<float>)
+  asiData_EXPORT opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >
     GetGrid();
 
 protected:

@@ -49,6 +49,7 @@
 #include <Geom2dAdaptor_Curve.hxx>
 
 #define TOT_VERTS 10000
+#define MAGIC 42
 
 static double pgon[TOT_VERTS][2];
 
@@ -209,12 +210,13 @@ void asiAlgo_SampleFace::SetPmcAlgo(const PmcAlgo algo)
 
 //-----------------------------------------------------------------------------
 
-bool asiAlgo_SampleFace::Perform(const int numBins)
+bool asiAlgo_SampleFace::Perform(const int numBinsU,
+                                 const int numBinsV)
 {
   if ( m_face.IsNull() )
     return false;
 
-  if ( numBins < 2 )
+  if ( numBinsU < 2 || numBinsV < 2 )
     return false;
 
   // Prepare for Haines.
@@ -229,7 +231,7 @@ bool asiAlgo_SampleFace::Perform(const int numBins)
   // Prepare for a discrete classifier.
   if ( (m_algo == PmcAlgo_Discrete) && m_discrClass.IsNull() )
   {
-    const double discr   = 42;
+    const double discr   = MAGIC;
     const double uGrain  = (m_fUmax - m_fUmin)/discr;
     const double vGrain  = (m_fVmax - m_fVmin)/discr;
     const double uvGrain = Min(uGrain, vGrain);
@@ -281,8 +283,8 @@ bool asiAlgo_SampleFace::Perform(const int numBins)
   //
   if ( m_bSquare )
   {
-    xStep = (xMax - xMin) / numBins;
-    yStep = (yMax - yMin) / numBins;
+    xStep = (xMax - xMin) / numBinsU;
+    yStep = (yMax - yMin) / numBinsV;
     step  = Max(xStep, yStep);
 
     const int _nx = int( (xMax - xMin) / step );
@@ -293,8 +295,8 @@ bool asiAlgo_SampleFace::Perform(const int numBins)
   }
   else
   {
-    xStep = (numBins + 1) * (xMax - xMin) / (numBins*numBins);
-    yStep = (numBins + 1) * (yMax - yMin) / (numBins*numBins);
+    xStep = (numBinsU + 1) * (xMax - xMin) / (numBinsU*numBinsU);
+    yStep = (numBinsV + 1) * (yMax - yMin) / (numBinsV*numBinsV);
     step  = Min(xStep, yStep);
 
     nx = int( (xMax - xMin) / step ) + 1;
@@ -305,11 +307,11 @@ bool asiAlgo_SampleFace::Perform(const int numBins)
     return false;
 
   // Prepare the output grid.
-  m_grid = new asiAlgo_UniformGrid<float>( (float) xMin,
-                                           (float) yMin,
-                                            0.f,
-                                            nx, ny, 0,
-                                           (float) step );
+  m_grid = new asiAlgo_FaceGrid( (float) xMin,
+                                 (float) yMin,
+                                  0.f,
+                                  nx, ny, 0,
+                                 (float) step );
 
   // Process the block of data.
   double x, y;
@@ -328,7 +330,7 @@ bool asiAlgo_SampleFace::Perform(const int numBins)
 #endif
 
       // Put scalar into the grid.
-      m_grid->pArray[i][j][0] = (float) ( (s & Membership_In) ? 1. : 0. );
+      m_grid->pArray[i][j][0].s = (float) ( (s & Membership_In) ? 1. : 0. );
     }
   }
 
@@ -337,7 +339,8 @@ bool asiAlgo_SampleFace::Perform(const int numBins)
 
 //-----------------------------------------------------------------------------
 
-const Handle(asiAlgo_UniformGrid<float>)& asiAlgo_SampleFace::GetResult() const
+const Handle(asiAlgo_FaceGrid)&
+  asiAlgo_SampleFace::GetResult() const
 {
   return m_grid;
 }
@@ -346,7 +349,7 @@ const Handle(asiAlgo_UniformGrid<float>)& asiAlgo_SampleFace::GetResult() const
 
 Handle(asiAlgo_BaseCloud<double>) asiAlgo_SampleFace::GetResult3d() const
 {
-  BRepAdaptor_Surface bas(m_face);
+  BRepAdaptor_Surface bas(m_face, false);
 
   Handle(asiAlgo_BaseCloud<double>) sampledPts = new asiAlgo_BaseCloud<double>;
   //
@@ -358,7 +361,7 @@ Handle(asiAlgo_BaseCloud<double>) asiAlgo_SampleFace::GetResult3d() const
     {
       const double y = m_grid->YMin + m_grid->CellSize*j;
 
-      if ( m_grid->pArray[i][j][0] )
+      if ( m_grid->pArray[i][j][0].s ) // If non-zero...
         sampledPts->AddElement( bas.Value(x, y) );
     }
   }
@@ -425,7 +428,7 @@ asiAlgo_Membership
 
 //-----------------------------------------------------------------------------
 
-const Handle(asiAlgo::discr::Model)& asiAlgo_SampleFace::GetDiscrModel() const
+const Handle(discr::Model)& asiAlgo_SampleFace::GetDiscrModel() const
 {
   return m_discrModel;
 }

@@ -32,6 +32,7 @@
 #define asiAlgo_WriteREK_h
 
 // asiAlgo includes
+#include <asiAlgo_FaceProbe.h>
 #include <asiAlgo_UniformGrid.h>
 
 // Standard includes
@@ -95,7 +96,7 @@ public:
   //! \param[in] grid the grid to serialize.
   //! \return true in case of success, false -- otherwise.
   asiAlgo_EXPORT bool
-    Write(const Handle(asiAlgo_UniformGrid<float>)& grid);
+    Write(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid);
 
 protected:
 

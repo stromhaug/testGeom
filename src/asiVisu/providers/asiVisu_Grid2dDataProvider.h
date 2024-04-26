@@ -66,7 +66,7 @@ public:
 public:
 
   //! \return uniform grid.
-  asiVisu_EXPORT virtual Handle(asiAlgo_UniformGrid<float>)
+  asiVisu_EXPORT virtual opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >
     GetUniformGrid() const;
 
   //! \return SVO sampling strategy mode.

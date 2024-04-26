@@ -32,6 +32,7 @@
 #define asiAlgo_ResampleADF_h
 
 // asiAlgo includes
+#include <asiAlgo_FaceProbe.h>
 #include <asiAlgo_UniformGrid.h>
 
 // Active Data includes
@@ -74,7 +75,7 @@ public:
     Perform(const float step);
 
   //! \return resulting grid.
-  asiAlgo_EXPORT const Handle(asiAlgo_UniformGrid<float>)&
+  asiAlgo_EXPORT const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >&
     GetResult() const;
 
   //! Sets multithreading mode (parallel or sequential).
@@ -88,7 +89,7 @@ protected:
   void* m_pSVO;
 
   //! Uniform grid which is the result of the uniform sampling.
-  Handle(asiAlgo_UniformGrid<float>) m_grid;
+  opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> > m_grid;
 
   //! Indicates whether the multithreading is on/off.
   bool m_bIsParallel;

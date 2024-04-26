@@ -364,7 +364,7 @@ bool asiAlgo_RepatchFaces::repatchGroup(const TColStd_PackedMapOfInteger& faceId
       sampleFace.SetSquare  ( false );
       sampleFace.SetPmcAlgo ( asiAlgo_SampleFace::PmcAlgo_Precise );
       //
-      if ( !sampleFace.Perform(10) )
+      if ( !sampleFace.Perform(10, 10) )
       {
         m_progress.SendLogMessage(LogWarn(Normal) << "Failed to sample face %1." << fid);
         continue;

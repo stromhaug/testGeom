@@ -31,6 +31,7 @@
 #pragma once
 
 // asiAlgo includes
+#include <asiAlgo_FaceProbe.h>
 #include <asiAlgo_FeatureAttrFace.h>
 #include <asiAlgo_UniformGrid.h>
 
@@ -48,10 +49,11 @@ public:
   //! Creates attribute with feature ID.
   //! \param[in] ugrid     uniform grid
   //! \param[in] featureId 1-based feature ID.
-  asiAlgo_AttrFaceUniformGrid(const Handle(asiAlgo_UniformGrid<float>)& ugrid,
-                              const int                                 featureId = 0)
-    : asiAlgo_FeatureAttrFace(featureId),
-      m_grid(ugrid)
+  asiAlgo_AttrFaceUniformGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& ugrid,
+                              const int                                                                   featureId = 0)
+  //
+  : asiAlgo_FeatureAttrFace(featureId),
+    m_grid(ugrid)
   {}
 
 public:
@@ -76,12 +78,12 @@ public:
   }
 
   //! \return a uniform grid cached by the attribute.
-  const Handle(asiAlgo_UniformGrid<float>)& GetGrid() const
+  const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& GetGrid() const
   {
     return m_grid;
   }
  
 private:
 
-  Handle(asiAlgo_UniformGrid<float>) m_grid;
+  opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> > m_grid;
 };

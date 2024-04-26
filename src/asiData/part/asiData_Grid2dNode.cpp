@@ -78,14 +78,15 @@ void asiData_Grid2dNode::SetName(const TCollection_ExtendedString& name)
 
 //-----------------------------------------------------------------------------
 
-Handle(asiAlgo_UniformGrid<float>) asiData_Grid2dNode::GetUniformGrid() const
+opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >
+  asiData_Grid2dNode::GetUniformGrid() const
 {
   return Handle(asiData_UniformGridParameter)::DownCast( this->Parameter(PID_UniformGrid) )->GetGrid();
 }
 
 //-----------------------------------------------------------------------------
 
-void asiData_Grid2dNode::SetUniformGrid(const Handle(asiAlgo_UniformGrid<float>)& grid)
+void asiData_Grid2dNode::SetUniformGrid(const opencascade::handle< asiAlgo_UniformGrid<float, asiAlgo_FaceProbe> >& grid)
 {
   Handle(asiData_UniformGridParameter)::DownCast( this->Parameter(PID_UniformGrid) )->SetGrid(grid);
 }
